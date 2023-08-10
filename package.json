@@ -1,0 +1,27 @@
+{
+  "name": "photocopy-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec babel-node src/server -e js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mongoose": "^7.4.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.10",
+    "@babel/core": "^7.22.10",
+    "@babel/node": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.1"
+  }
+}
