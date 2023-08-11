@@ -14,7 +14,22 @@ const userShema = new Schema({
     isAdmin:{
         type:Boolean,
         default:false
-    }
+    }, 
+    avatar:{
+        type:String,
+    },
+    role:[
+        {
+            roleId:{
+                type:Schema.Types.ObjectId,
+                ref: 'role'
+            }
+        }
+    ],
+    phoneNumber:{
+        type:String
+    },
+    
 }, {timestamps:true})
 
 
