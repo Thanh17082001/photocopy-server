@@ -33,6 +33,10 @@ const productSchema = new Schema({
     },
     status:{
         type:String,
+        emum:['Cho Thuê', 'Đã bán', 'Sẵn có']
+    },
+    type:{
+        type:String,
         emum:['Đã qua sử dụng', 'Mới']
     }
     
