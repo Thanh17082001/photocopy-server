@@ -6,7 +6,6 @@ const staffSchema = new Schema({
     position:String,
     startDate:{
         type:Date,
-        default:Date.now()
     },
     phone:String,
     email:String,
