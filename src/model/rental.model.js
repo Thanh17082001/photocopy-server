@@ -10,17 +10,21 @@ const rentalSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'staff'
     },
-    productId:[
-        {
+    products:[
+       {
+        productId:{
             type:Schema.Types.ObjectId,
             ref:'product'
         },
+        duration:Number
+       }
     ],
     startDate:Date,
     endDate:Date,
     totalAmount:Number,
     status:{
-        type:String
+        type:String,
+        enum:['Đang thỏa thuận', 'Đã ký'] // đang hoat dong, dang cho xu ly
     }
 }, {timestamps:true})
 

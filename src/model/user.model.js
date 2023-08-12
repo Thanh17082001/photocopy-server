@@ -20,10 +20,8 @@ const userShema = new Schema({
     },
     role:[
         {
-            roleId:{
-                type:Schema.Types.ObjectId,
-                ref: 'role'
-            }
+            type:Schema.Types.ObjectId,
+            ref: 'role'
         }
     ],
     phoneNumber:{

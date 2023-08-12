@@ -15,10 +15,15 @@ const orderSchema = new Schema({
             quanlity:Number
         }
     ],
+    totalAmount:Number,
     nameCustomer:{
         type:String
     },
-    phone:String,
+    status:{
+        type:String,
+        enum:['Đang xử lý', 'Đang vận chuyển', 'Đã giao hàng']
+    },
+    phoneNumber:String,
     address:String
 },{timestamps:true})
 

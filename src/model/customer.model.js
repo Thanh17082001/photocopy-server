@@ -5,5 +5,7 @@ const customerSchema = new Schema({
     fullname:String,
     address:String,
     phoneNumber:String,
-    email:String
+    email:String,
 }, {timestamps:true})
+
+export default mongoose.model('customer',customerSchema)

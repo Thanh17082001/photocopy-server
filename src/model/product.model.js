@@ -19,8 +19,11 @@ const productSchema = new Schema({
     soldQuantity: {
         type: Number
     },
-    price:{
+    priceSale:{
         type: Number
+    },
+    priceRental:{
+        type:Number
     },
     description:{
         type:String
