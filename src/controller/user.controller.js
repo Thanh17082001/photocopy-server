@@ -1,6 +1,10 @@
 import userService from "../service/user.service";
 import * as argon2 from "argon2";
 import jwt  from "jsonwebtoken";
+import mailer from "../utils/mailler"
+import codeService from "../service/code.service";
+import deepEqual from "deep-equal";
+
 // Dang ky tai khoan
 exports.register = async (req, res) => {
     try {
@@ -10,7 +14,7 @@ exports.register = async (req, res) => {
         const existEmail = await userService.findByEmail(email)
         const existPhoneNumber = await userService.findByPhoneNumber(phoneNumber)
         if(!!existEmail || !!existPhoneNumber){
-            res.status(400).json({mes:'tồn tại email hoặc số điện thoại'})
+           res.json({mes:'tồn tại email hoặc số điện thoại'})
             return;
         }
         const data={
@@ -21,29 +25,169 @@ exports.register = async (req, res) => {
             isAdmin:true
         }
         const result = await userService.register(data)
-        result ? res.status(200).json({mes:'Đăng ký thành công'}) : res.status(400).json({mes:'Đăng ký không thành công'})
+        result ? res.json({mes:'Đăng ký thành công'}) :res.json({mes:'Đăng ký không thành công'})
     } catch (error) {
         res.status(500).json({error})
     }
 }
 
+// Dang nhap
 exports.login = async (req, res)=> {
     try {
-        const {email, password} = req.body
-        const user = await userService.findByEmail(email)
-        const verifyPass = !!user ? await argon2.verify(user.password, password): false
-        if(verifyPass){
-            const token = jwt.sign({userId: user._id,isAdmin:user.isAdmin, roles:user.roles},process.env.PRIVATE_KEY_TOKEN,{expiresIn:'6h'})
-            req.session.auth = {
-                token,
-                ...user
+        if(!!!req.session.auth){
+            const {email, password} = req.body
+            const user = await userService.findByEmail(email)
+            const verifyPass = !!user ? await argon2.verify(user.password, password): false
+            if(verifyPass){
+                const token = jwt.sign({userId: user._id,isAdmin:user.isAdmin, roles:user.roles},process.env.PRIVATE_KEY_TOKEN,{expiresIn:'6h'})
+                req.session.auth = {
+                    token,
+                    ...user
+                }
+                // send token to client
+                res.json(req.session.auth)
+            }else{
+               res.json({mes:'Đăng nhập không thành công. Tài khoản hoặc mật khẩu không chính xác'})
             }
-            // send token to client
-            res.json(req.session.auth)
-        }else{
-            res.status(400).json({mes:'Đăng nhập không thành công sai mật khẩu hoặc tài khoản'})
+        }
+        else{
+            res.json({mes:'Bạn đã đăng nhập'})
         }
     } catch (error) {
         res.status(500).json({error})
     }
+}
+
+// Dang nhap voi GG
+exports.loginWithGoogle = async (req, res) =>{
+
+}
+
+// Quen mat khau
+exports.forgetPassWord = async (req, res) =>{
+    try {
+        const {email} = req.body
+        const user = await userService.findByEmail(email)
+        if(!!user){
+            let numbers=''
+            for (let i = 0; i < 6; i++) {
+                let randomNumber = Math.floor(Math.random() * 10);
+                numbers+=randomNumber;
+            }
+            const result = await mailer.sendMail(email , numbers, 'Mã Xác Nhận')
+            if(!!result){
+                await codeService.create({
+                    emailUser:user.email,
+                    codeNumber:numbers,
+                    resetTokenExpires: Date.now() + 60000
+                })
+                res.json({status:true})
+            }
+            else {
+                res.json({status:false}) 
+            }
+        }
+        else{
+           res.json({mes:'email không tồn tại'})
+        }
+    } catch (error) {
+        res.status(500).json({error})
+    }
+}
+
+exports.confirmCode = async (req, res)=>{
+    try {
+        const {code, email} = req.body
+        const codeConfirm = await codeService.findAllByEmail(email)
+        if(codeConfirm.length !== 0){
+            if(codeConfirm[0].codeNumber == code){
+                await codeService.updateCodeUsed(email, code)
+                res.json({mes:true})
+            }
+            else{
+               res.json({mes:false})
+            }
+ 
+        }
+        else{
+           res.json({mes:'mã xác thực hết thời hạn'})
+        }
+    } catch (error) {
+        res.status(500).json({error})
+    }
+}
+
+// Chinh sua thong tin
+exports.updateUser = async (req, res) =>{
+    try {
+        const userLogin = req.session.auth 
+        if(!!userLogin){
+            const auth = {
+                fullName: userLogin.fullName,
+                email: userLogin.email,
+                avatar: userLogin.avatar,
+                phoneNumber: userLogin.phoneNumber
+            }
+            const userChange ={
+                fullName: req.body.fullName,
+                email: req.body.email,
+                avatar: req.body.avatar,
+                phoneNumber: req.body.phoneNumber
+            }
+            const isEqual= deepEqual(auth,userChange)
+            if(!isEqual){
+                const existEmail = await userService.checkExistEmail(userLogin._id,req.body.email)
+                const existPhoneNumber = await userService.checkExistPhoneNumber(userLogin._id,req.body.phoneNumber)
+                if(existEmail){
+                    res.json({mes:'Email đã được sử dụng'})
+                }
+                else if(existPhoneNumber){
+                    res.json({mes:'Số điện thoại đã được sử dụng'})
+                }
+                else{
+                    const result = await userService.updateUserById(userLogin._id, userChange)
+                    res.json(result)
+                }
+            }
+            else{
+                res.json({mes:'Không có sự thay đổi'});
+            }
+        }
+        else{
+            res.json({mes:'Bạn chưa đăng nhập'})
+        }
+    } catch (error) {
+        res.status(500).json({error})
+    }
+}
+
+// Doi mat khau
+exports.changePassword = async (req, res) => {
+    try {
+        const auth = req.session.auth
+        if(!!auth){
+            const user = await userService.findByEmail(auth.email)
+            const {password, newPassword} = req.body
+            const verify = await argon2.verify(user.password, password)
+            if(verify){
+                const password = await argon2.hash(newPassword)
+                await userService.updateUserById(user._id,{password})
+                res.json({mes:'Đổi mật khẩu thành công'})
+            }
+            else{
+                res.json({mes:'Mật khẩu cũ không chính xác'})
+            }
+        }
+        else{
+            res.json({mes:'Bạn chưa đăng nhập'})
+        }
+    } catch (error) {
+        
+    }
+}
+
+// Dang xuat
+exports.logout = (req, res) =>{
+    req.session.auth=undefined
+    res.json({mes:'Đăng xuất thành công'})
 }
