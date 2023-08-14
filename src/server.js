@@ -12,6 +12,12 @@ dotenv.config()
 app.use(cors())
 // connect DB
 connectToDb()
+// json
+app.use(express.json());
+// body
+app.use(express.urlencoded({extended: true}));
+// static file
+app.use(express.static('src/public'));
 // express-session
 app.use(session({
   secret: 'keyboard cat',
