@@ -4,7 +4,8 @@ import jwt  from "jsonwebtoken";
 import mailer from "../utils/mailler"
 import codeService from "../service/code.service";
 import deepEqual from "deep-equal";
-
+import passport from "passport";
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 // Dang ky tai khoan
 exports.register = async (req, res) => {
     try {
@@ -21,8 +22,7 @@ exports.register = async (req, res) => {
             fullName:fullName,
             email:email,
             password:password,
-            phoneNumber:phoneNumber,
-            isAdmin:true
+            phoneNumber:phoneNumber
         }
         const result = await userService.register(data)
         result ? res.json({mes:'Đăng ký thành công'}) :res.json({mes:'Đăng ký không thành công'})
@@ -59,8 +59,37 @@ exports.login = async (req, res)=> {
 }
 
 // Dang nhap voi GG
-exports.loginWithGoogle = async (req, res) =>{
+exports.loginWithGoogle = async () =>{
+        passport.use(new GoogleStrategy({
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: "http://localhost:3000/user/google/callback"
+          },
+          async function(accessToken, refreshToken, profile, done) {
+            let user = await userService.findByEmail(profile.emails[0].value)
+            if(!!user){
+                return done(null,user)
+            }
+            else{
+                const data={
+                    fullName: profile.displayName,
+                    email:profile.emails[0].value,
+                    phoneNumber:'',
+                    avatar: profile.photos[0].value
+                }
+                user = await userService.register(data)
+                return done(null,user)
+            }
 
+          }
+        ))
+        passport.serializeUser(function(user, done) {
+            done(null, {user:user});
+          });
+          
+          passport.deserializeUser(function(user, done) {
+            done(null, user);
+          });
 }
 
 // Quen mat khau
