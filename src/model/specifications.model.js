@@ -17,7 +17,6 @@ const specificationsSchema = new Schema ({
     },
     connectionTechnology:{
         type:String,
-        default:''
     },
     screen:{
         type:String

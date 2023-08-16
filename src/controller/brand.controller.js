@@ -1,6 +1,4 @@
 import brandService from "../service/brand.service";
-import imageService from "../service/image.service";
-import path from 'path'
 import deepEqual from "deep-equal";
 
 class brandController{

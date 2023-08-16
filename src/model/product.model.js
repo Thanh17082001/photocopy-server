@@ -9,11 +9,12 @@ const productSchema = new Schema({
     name:{
         type:String
     },
-    InputQuantity: {
+    inputQuantity: {
         type: Number
     },
     soldQuantity: {
-        type: Number
+        type: Number,
+        default:0
     },
     priceSale:{
         type: Number
@@ -25,9 +26,6 @@ const productSchema = new Schema({
         type:String
     },
     image:{
-        type:String
-    },
-    functionality:{
         type:String
     },
     type:{

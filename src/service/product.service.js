@@ -4,6 +4,34 @@ class productService{
     async create(data){
         return productModel.create(data)
     }
+    async checkExistNameAndBrandId(name, brandId){
+        return await productModel.findOne({brandId, name})
+    }
+
+    async findProduct(condition, pageNumber, pageSize){
+        // co phan trang
+        if(!!pageNumber && !!pageSize){
+            const skip= (pageNumber-1)*pageSize
+            return await productModel.find(condition).skip(skip).limit(pageSize)
+        }
+        // khong phan trang && khong dung de find private key
+        else{
+            return await productModel.find(condition)
+        }
+    }
+    async findProductById(id){
+        return await productModel.findById(id)
+    }
+
+    async updateProduct(id, data){
+        return productModel.findByIdAndUpdate(id,{$set:data},{
+            returnDocument:'after'
+        })
+    }
+
+    async deleteProduct(id){
+        return await productModel.findByIdAndDelete(id)
+    }
 }
 
 export default new productService()
