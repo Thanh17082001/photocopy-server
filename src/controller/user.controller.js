@@ -163,10 +163,11 @@ exports.updateUser = async (req, res) =>{
                 avatar: userLogin.avatar,
                 phoneNumber: userLogin.phoneNumber
             }
+            const image= !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : userLogin.image;
             const userChange ={
                 fullName: req.body.fullName,
                 email: req.body.email,
-                avatar: req.body.avatar,
+                avatar: image,
                 phoneNumber: req.body.phoneNumber
             }
             const isEqual= deepEqual(auth,userChange)
@@ -180,7 +181,7 @@ exports.updateUser = async (req, res) =>{
                     res.json({mes:'Số điện thoại đã được sử dụng', status: false})
                 }
                 else{
-                    const result = await userService.updateUserById(userLogin._id, userChange)
+                    await userService.updateUserById(userLogin._id, userChange)
                     res.json({mes:'Thay đổi thông tin thành công', status:true})
                 }
             }

@@ -2,12 +2,14 @@ import  express  from "express";
 import passport from "passport";
 import jwt  from "jsonwebtoken";
 import UserController from '../controller/user.controller'
+import upload from '../utils/multer'
+
 const route = express.Router()
 route.post('/register',UserController.register )
 route.post('/login',UserController.login )
 route.post('/forget',UserController.forgetPassWord)
 route.post('/confirm-pass',UserController.confirmCode)
-route.post('/update',UserController.updateUser)
+route.post('/update',  upload('users').single('image'),UserController.updateUser)
 route.post('/change-pass',UserController.changePassword)
 route.get('/logout',UserController.logout)
 //login with google
