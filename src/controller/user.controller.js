@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
         const existEmail = await userService.findByEmail(email)
         const existPhoneNumber = await userService.findByPhoneNumber(phoneNumber)
         if(!!existEmail || !!existPhoneNumber){
-           res.json({mes:'tồn tại email hoặc số điện thoại'})
+           res.json({mes:'tồn tại email hoặc số điện thoại', status:false})
             return;
         }
         const data={
@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
             phoneNumber:phoneNumber
         }
         const result = await userService.register(data)
-        result ? res.json({mes:'Đăng ký thành công'}) :res.json({mes:'Đăng ký không thành công'})
+        result ? res.json({mes:'Đăng ký thành công', status:true}) :res.json({mes:'Đăng ký không thành công', status:false})
     } catch (error) {
         res.status(500).json({error})
     }
@@ -45,13 +45,19 @@ exports.login = async (req, res)=> {
                     ...user
                 }
                 // send token to client
-                res.json(req.session.auth)
+                res.json({
+                    mes:'Đăng nhập thành công',
+                    status:true,
+                    user:{
+                        ...req.session.auth
+                    }
+                })
             }else{
-               res.json({mes:'Đăng nhập không thành công. Tài khoản hoặc mật khẩu không chính xác'})
+               res.json({mes:'Đăng nhập không thành công. Tài khoản hoặc mật khẩu không chính xác' , status: false})
             }
         }
         else{
-            res.json({mes:'Bạn đã đăng nhập'})
+            res.json({mes:'Bạn đã đăng nhập', status: false})
         }
     } catch (error) {
         res.status(500).json({error})
@@ -168,18 +174,18 @@ exports.updateUser = async (req, res) =>{
                 const existEmail = await userService.checkExistEmail(userLogin._id,req.body.email)
                 const existPhoneNumber = await userService.checkExistPhoneNumber(userLogin._id,req.body.phoneNumber)
                 if(existEmail){
-                    res.json({mes:'Email đã được sử dụng'})
+                    res.json({mes:'Email đã được sử dụng', status: false})
                 }
                 else if(existPhoneNumber){
-                    res.json({mes:'Số điện thoại đã được sử dụng'})
+                    res.json({mes:'Số điện thoại đã được sử dụng', status: false})
                 }
                 else{
                     const result = await userService.updateUserById(userLogin._id, userChange)
-                    res.json(result)
+                    res.json({mes:'Thay đổi thông tin thành công', status:true})
                 }
             }
             else{
-                res.json({mes:'Không có sự thay đổi'});
+                res.json({mes:'Không có sự thay đổi', status: false});
             }
         }
         else{
@@ -201,10 +207,10 @@ exports.changePassword = async (req, res) => {
             if(verify){
                 const password = await argon2.hash(newPassword)
                 await userService.updateUserById(user._id,{password})
-                res.json({mes:'Đổi mật khẩu thành công'})
+                res.json({mes:'Đổi mật khẩu thành công', status:true})
             }
             else{
-                res.json({mes:'Mật khẩu cũ không chính xác'})
+                res.json({mes:'Mật khẩu cũ không chính xác', status: false})
             }
         }
         else{
@@ -218,5 +224,5 @@ exports.changePassword = async (req, res) => {
 // Dang xuat
 exports.logout = (req, res) =>{
     req.session.auth=undefined
-    res.json({mes:'Đăng xuất thành công'})
+    res.json({mes:'Đăng xuất thành công', status:true})
 }
