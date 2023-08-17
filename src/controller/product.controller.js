@@ -3,7 +3,7 @@ import deepEqual from "deep-equal";
 class productController{
     async create(req, res){
         try {
-            if(!!req.body.brandId){
+            if(!!req.body){
                 const image= !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : '';
                 const data={
                     brandId: req.body.brandId,
