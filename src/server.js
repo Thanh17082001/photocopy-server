@@ -10,7 +10,7 @@ const app = express()
 dotenv.config()
 
 //cors
-app.use(cors())
+app.use(cors({credentials:true, origin:'http://localhost:3001'}))
 // connect DB
 connectToDb()
 // json

@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
         const existEmail = await userService.findByEmail(email)
         const existPhoneNumber = await userService.findByPhoneNumber(phoneNumber)
         if(!!existEmail || !!existPhoneNumber){
-           res.json({mes:'tồn tại email hoặc số điện thoại', status:false})
+           res.json({mes:'Tồn tại email hoặc số điện thoại', status:false})
             return;
         }
         const data={
