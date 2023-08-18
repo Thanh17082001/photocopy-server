@@ -42,7 +42,9 @@ exports.login = async (req, res)=> {
                 const token = jwt.sign({userId: user._id,isAdmin:user.isAdmin, roles:user.roles},process.env.PRIVATE_KEY_TOKEN,{expiresIn:'6h'})
                 req.session.auth = {
                     token,
-                    ...user
+                    user:{
+                        ...user
+                    }
                 }
                 // send token to client
                 res.json({
@@ -53,7 +55,7 @@ exports.login = async (req, res)=> {
                     }
                 })
             }else{
-               res.json({mes:'Đăng nhập không thành công. Tài khoản hoặc mật khẩu không chính xác' , status: false})
+               res.json({mes:'Tài khoản hoặc mật khẩu không chính xác' , status: false})
             }
         }
         else{
