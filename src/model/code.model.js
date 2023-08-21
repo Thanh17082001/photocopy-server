@@ -15,6 +15,10 @@ const codeSchema = new Schema({
     used:{
         type:Boolean,
         default:false
+    },
+    isValid:{
+        type:Boolean,
+        default:false
     }
 }, {timestamps:true})
 

@@ -9,14 +9,34 @@ class codeService{
         return await codeModel.find({
             emailUser,
             used:false,
+            isValid:false,
             resetTokenExpires: { $gt: Date.now() }
         })
         .sort({ createdAt: -1 })
         .lean()
     }
 
-    async updateCodeUsed (email, code){
-        return await codeModel.findOneAndUpdate({emailUser:email, codeNumber:code}, {used:true})
+    async updateCodeIsValid (email, code){
+        return await codeModel.findOneAndUpdate(
+            {emailUser:email, codeNumber:code}, 
+            { isValid:true})
+            .sort({ createdAt: -1 })
     }
+    async getIValidByEmail(emailUser){
+        return await codeModel.find({
+            emailUser,
+            used:false,
+            isValid:true,
+            resetTokenExpires: { $gt: Date.now() }
+        })
+        .sort({ createdAt: -1 })
+        .lean()
+    }
+    async updateCodeUsed (email){
+        return await codeModel.findOneAndUpdate(
+            {emailUser:email, resetTokenExpires: { $gt: Date.now() }}
+            ,{used:true})
+            .sort({ createdAt: -1 })
+    } 
 }
 export default new codeService()

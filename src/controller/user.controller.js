@@ -100,7 +100,7 @@ exports.loginWithGoogle = async () =>{
           });
 }
 
-// Quen mat khau
+// Quen mat kha
 exports.forgetPassWord = async (req, res) =>{
     try {
         const {email} = req.body
@@ -121,11 +121,11 @@ exports.forgetPassWord = async (req, res) =>{
                 res.json({status:true})
             }
             else {
-                res.json({status:false}) 
+                res.json({mes:'Lỗi khi gửi email',status:false}) 
             }
         }
         else{
-           res.json({mes:'email không tồn tại'})
+           res.json({mes:'email không tồn tại',status:false})
         }
     } catch (error) {
         res.status(500).json({error})
@@ -138,21 +138,46 @@ exports.confirmCode = async (req, res)=>{
         const codeConfirm = await codeService.findAllByEmail(email)
         if(codeConfirm.length !== 0){
             if(codeConfirm[0].codeNumber == code){
-                await codeService.updateCodeUsed(email, code)
-                res.json({mes:true})
+                await codeService.updateCodeIsValid(email, code)
+                res.json({status:true})
             }
             else{
-               res.json({mes:false})
+               res.json({status:false, mes:'Mã xác thực không chính xác'})
             }
  
         }
         else{
-           res.json({mes:'mã xác thực hết thời hạn'})
+           res.json({mes:'Mã xác thực hết hạn hoặc đã được sử dụng', status:false})
         }
     } catch (error) {
         res.status(500).json({error})
     }
 }
+
+exports.resetPass=async (req, res)=>{
+    try {
+        if(!!req.body){
+            const {email, password}=req.body
+            if(!!email){
+                const isVerifi= await codeService.getIValidByEmail(email)
+                if(isVerifi.length !==0){
+                    const newpassword = await argon2.hash(password)
+                    await userService.updateByEmail(email, newpassword)
+                    const a = await codeService.updateCodeUsed(email)
+                    res.json({mes:'Đặt lại mật khẩu thành công', status:true})
+                }
+                else{
+                    res.json({mes:'Email chưa xác thực', status:false})
+                }
+            }
+
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error})
+    }
+}
+
 
 // Chinh sua thong tin
 exports.updateUser = async (req, res) =>{

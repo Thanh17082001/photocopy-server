@@ -22,6 +22,9 @@ class UserService{
     async updateUserById(id, data){
         return await userModel.findByIdAndUpdate(id, data, { returnDocument: "after", upsert: true })
     }
+    async updateByEmail(email, password){
+        return await userModel.findOneAndUpdate({email},{password},{returnDocument:'after'})
+    }
 }
 
 export default new UserService();
