@@ -4,14 +4,14 @@ class productController {
     async create(req, res) {
         try {
             if (!!req.body) {
-                const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : '';
+                const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : 'khong co';
                 const data = {
                     brandId: req.body.brandId,
+                    categoryId: req.body.categoryId,
                     name: req.body.name,
-                    inputQuantity: req.body.inputQuantity,
                     priceSale: req.body.priceSale,
                     priceRental: req.body.priceRental,
-                    description: req.body.description,
+                    description: req.body.description || '',
                     image: image,
                     type: req.body.type,
                 };
@@ -69,7 +69,6 @@ class productController {
             const oldProduct = {
                 brandId: product.brandId.toString(),
                 name: product.name,
-                inputQuantity: product.inputQuantity,
                 priceSale: product.priceSale,
                 priceRental: product.priceRental,
                 description: product.description,

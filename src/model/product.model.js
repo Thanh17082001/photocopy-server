@@ -6,11 +6,16 @@ const productSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'brand'
     },
+    categoryId:{
+        type:Schema.Types.ObjectId,
+        ref:'category'
+    },
     name:{
         type:String
     },
     inputQuantity: {
-        type: Number
+        type: Number,
+        default:0
     },
     soldQuantity: {
         type: Number,
@@ -18,6 +23,10 @@ const productSchema = new Schema({
     },
     priceSale:{
         type: Number
+    },
+    priceImport:{
+        type: Number,
+        default:0
     },
     priceRental:{
         type:Number
@@ -31,7 +40,7 @@ const productSchema = new Schema({
     type:{
         type:String,
         emum:['Đã qua sử dụng', 'Mới']
-    }
+    },
     
 }, {timestamps:true})
 

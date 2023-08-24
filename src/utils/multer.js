@@ -9,6 +9,7 @@ const upload = function(folder=''){
                 },
                 filename: (req, file, cb) => {
                     cb(null, file.originalname);
+                    
                 },
             }),
             fileFilter: (req, file, cb) => {

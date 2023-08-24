@@ -22,7 +22,7 @@ class brandController{
             // console.log(req.file);
 
 
-            const relativePath = req.file.path.split('public')[1].replace(/\\/g, '/');
+            const relativePath = req.file.path.split('public')[1].replace(/\\/g, '/') || '';
             if(!!req.body.name){
                 const {name} = req.body
                 const exitsName = await brandService.findByName(name)
