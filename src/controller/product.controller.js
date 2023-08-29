@@ -44,9 +44,11 @@ class productController {
     async getProductById(req, res) {
         try {
             const { id } = !!req.query ? req.query : '';
-            const result = await productService.findProduct(id);
+            const result = await productService.findProductById(id);
             res.json(result);
         } catch (error) {
+            console.log(error);
+
             res.status(500).json({ error });
         }
     }
