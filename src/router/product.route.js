@@ -7,6 +7,7 @@ router.post('/create', upload('products').single('image'),productController.crea
 router.post('/update', upload('products').single('image'),productController.update) //?id=
 router.get('/delete',productController.delete) //?id=
 router.get('/get-id/', productController.getProductById) //?id=
+router.get('/product-detail/', productController.getProductDetail) //?id=
 router.get('/get-brand-id/', productController.getProductByBrandId) //?brandId=
 router.get('/', productController.getAllProduct)  //?pageNumber&pageSize
 

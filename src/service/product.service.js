@@ -26,11 +26,17 @@ class productService{
     async updateProduct(id, data){
         return productModel.findByIdAndUpdate(id,{$set:data},{
             returnDocument:'after'
-        })
+        }).lean()
     }
 
     async deleteProduct(id){
         return await productModel.findByIdAndDelete(id)
+    }
+
+    async findProductByIdAndRef(id){
+        return await productModel.findById(id)
+                    .populate('brandId',['_id', 'name'])
+                    .populate('categoryId', ['_id', 'name'])
     }
 }
 

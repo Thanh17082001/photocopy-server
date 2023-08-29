@@ -70,6 +70,7 @@ class productController {
             const product = await productService.findProductById(id);
             const oldProduct = {
                 brandId: product.brandId.toString(),
+                categoryId: product.categoryId.toString(),
                 name: product.name,
                 priceSale: product.priceSale,
                 priceRental: product.priceRental,
@@ -87,8 +88,8 @@ class productController {
                 if (isEqual) {
                     res.json({ mes: 'Chưa chỉnh sửa dữ liệu', status: false });
                 } else {
-                    await productService.updateProduct(id, newProduct);
-                    res.json({ mes: 'Cập nhật thành công', status: true });
+                    const result=await productService.updateProduct(id, newProduct);
+                    res.json({ mes: 'Cập nhật thành công', status: true, data:result });
                 }
             } else {
                 res.json({ mes: 'Dữ liệu không được bỏ trống', status: false });
@@ -103,6 +104,20 @@ class productController {
             const { id } = req.query;
             const result = await productService.deleteProduct(id);
             res.json(result);
+        } catch (error) {
+            res.status(500).json({ error });
+        }
+    }
+
+    async getProductDetail(req, res){
+        try {
+            const { id } = req.query;
+            const result = await productService.findProductByIdAndRef(id);
+            if(!!result){
+                res.json({status:true, data:result})
+            }else{
+                res.json({mes:'Không lấy được dữ liệu', status:false})
+            }
         } catch (error) {
             res.status(500).json({ error });
         }
