@@ -8,11 +8,12 @@ class productService{
         return await productModel.findOne({brandId, name})
     }
 
-    async findProduct(condition, pageNumber, pageSize){
+    async findProduct(condition, pageNumber, pageSize, sort){
         // co phan trang
         if(!!pageNumber && !!pageSize){
             const skip= (pageNumber-1)*pageSize
-            return await productModel.find(condition).skip(skip).limit(pageSize)
+            const sortCondition= sort ? sort: {createdAt:-1}
+            return await productModel.find(condition).skip(skip).limit(pageSize).sort(sortCondition)
         }
         // khong phan trang && khong dung de find private key
         else{

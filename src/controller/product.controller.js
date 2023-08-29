@@ -122,6 +122,28 @@ class productController {
             res.status(500).json({ error });
         }
     }
+    async sortProduct(req, res){
+        try {
+            const {type, field, pageNumber, pageSize}= req.query
+            if(type==0){
+                const data={
+                    [field]:Number(type)
+                }
+                const result = await productService.findProduct(data, pageNumber, pageSize);
+                res.json(result);
+            }
+            else{
+                const data={
+                    [field]:Number(type)
+                }
+                const result = await productService.findProduct({}, pageNumber, pageSize, data);
+                res.json(result);
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ error });
+        }
+    }
 }
 
 export default new productController();
