@@ -33,7 +33,8 @@ class productController {
     // read
     async getAllProduct(req, res) {
         try {
-            const { pageNumber, pageSize } = req.query;
+            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+            const pageSize = req.query.pageNumber ? req.query.pageSize : {}
             const result = await productService.findProduct({}, pageNumber, pageSize);
             res.json(result);
         } catch (error) {

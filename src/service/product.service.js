@@ -30,6 +30,17 @@ class productService{
         }).lean()
     }
 
+    async updateAfterEntry(id, data){
+        return productModel.findByIdAndUpdate(
+            id,
+            {
+                $inc:{inputQuantity: data.inputQuantity},
+                $set:{priceImport:data.priceImport}
+            },
+            { returnDocument:'after'})
+            .lean()
+    }
+
     async deleteProduct(id){
         return await productModel.findByIdAndDelete(id)
     }
