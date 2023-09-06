@@ -3,7 +3,8 @@ import { Schema } from "mongoose";
 
 const entryReceipt = new Schema({
     createBy:{
-        type:String,
+        type:Schema.Types.ObjectId,
+        ref:'user',
         require
     },
     products:[

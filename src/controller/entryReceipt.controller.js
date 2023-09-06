@@ -8,7 +8,7 @@ class entryReceiptController{
             if(!!req.body){
                 const data={
                     ...req.body,
-                    createBy:user.fullName
+                    createBy:user._id
                 }
                 const result = await entryReceiptService.create(data);
                 if(!!result){
@@ -37,6 +37,7 @@ class entryReceiptController{
             res.json({mes:'Bạn chưa đăng nhập', status:false})
         }
       } catch (error) {
+        console.log(error);
         res.status(500).json({error:error.message})
       }
     }
@@ -49,6 +50,7 @@ class entryReceiptController{
             const result = await entryReceiptService.findEntry({}, pageNumber, pageSize,{createdAt:-1})
             res.json(result)
         } catch (error) {
+        console.log(error);
             res.status(500).json({error:error.message})
         }
     }
