@@ -50,6 +50,10 @@ class productService{
                     .populate('brandId',['_id', 'name'])
                     .populate('categoryId', ['_id', 'name'])
     }
+
+    async search(data){
+        return await productModel.find({$text:{$search:data}}).lean()
+    }
 }
 
 export default new productService()

@@ -10,7 +10,6 @@ const userShema = new Schema({
     },
     password:{
         type:String,
-        require:true
     },
     isAdmin:{
         type:Boolean,
@@ -29,7 +28,14 @@ const userShema = new Schema({
     phoneNumber:{
         type:String
     },
-    
+    isGoogle:{
+        type:Boolean,
+        default:false
+    },
+    isStaff:{
+        type:Boolean,
+        default:false
+    }
 }, {timestamps:true})
 
 

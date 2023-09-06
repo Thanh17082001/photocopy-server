@@ -145,6 +145,32 @@ class productController {
             res.status(500).json({ error });
         }
     }
+
+    async search(req, res){
+        try {
+            console.log(req.body);
+            const data= req.body.searchValue
+            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+            const pageSize = req.query.pageSize ? req.query.pageSize : {}
+            const numberSearch= Number(data) ? [
+                {inputQuantity:{ $gte: Number(data) }}, 
+                {soldQuantity:{ $gte: Number(data) }}, 
+                {priceSale:{ $gte: Number(data) }}, 
+                { priceImport:{ $gte: Number(data) }},
+                {priceRental:{ $gte: Number(data) }},
+            ] : []
+            const searchValue= [
+                { name: { $regex: '.*' + data + '.*' } },
+                { description: { $regex: '.*' + data + '.*' } },
+                {type:{ $regex: '.*' + data + '.*' } },
+                ...numberSearch
+              ]
+            const result=await productService.findProduct({$or: searchValue}, pageNumber, pageSize,{})
+            res.json(result)
+        } catch (error) {
+            res.status(500).json({ error:error.message });
+        }
+    }
 }
 
 export default new productController();

@@ -37,7 +37,7 @@ exports.login = async (req, res)=> {
         if(!!!req.session.auth){
             const {email, password} = req.body
             const user = await userService.findByEmail(email)
-            const verifyPass = !!user ? await argon2.verify(user.password, password): false
+            const verifyPass = !!user.password ? await argon2.verify(user.password, password): false
             if(verifyPass){
                 const token = jwt.sign({userId: user._id,isAdmin:user.isAdmin, roles:user.roles},process.env.PRIVATE_KEY_TOKEN,{expiresIn:'6h'})
                 req.session.auth = {
@@ -55,7 +55,10 @@ exports.login = async (req, res)=> {
                     }
                 })
             }else{
-               res.json({mes:'Tài khoản hoặc mật khẩu không chính xác' , status: false})
+                if(user.isGoogle){
+                    return res.json({mes:'Tài khoản được đăng nhập bằng Google' , status: false})
+                }
+                res.json({mes:'Tài khoản hoặc mật khẩu không chính xác' , status: false})
             }
         }
         else{
@@ -83,10 +86,12 @@ exports.loginWithGoogle = async () =>{
                     fullName: profile.displayName,
                     email:profile.emails[0].value,
                     phoneNumber:'',
-                    avatar: profile.photos[0].value
+                    avatar: profile.photos[0].value,
+                    isGoogle:true
                 }
+                console.log(data);
                 user = await userService.register(data)
-                return done(null,user)
+                return done(null,user.toObject())
             }
 
           }

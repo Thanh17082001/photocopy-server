@@ -2,7 +2,7 @@ import userModel from '../model/user.model'
 
 class UserService{
     async register(data){
-        return await userModel.create(data).lean()
+        return await userModel.create(data)
     }
 
     async findByEmail(email){
