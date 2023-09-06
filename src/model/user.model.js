@@ -17,7 +17,7 @@ const userShema = new Schema({
     }, 
     avatar:{
         type:String,
-        default:'https://phongreviews.com/wp-content/uploads/2022/11/avatar-facebook-mac-dinh-8.jpg'
+        default:'/users/avt-default.jpg'
     },
     roles:[
         {
