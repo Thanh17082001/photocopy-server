@@ -35,9 +35,19 @@ class productController {
         try {
             const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
             const pageSize = req.query.pageSize ? req.query.pageSize : {}
-            const result = await productService.findProduct({}, pageNumber, pageSize);
+            // const type= !!req.query.type ? req.query.type : undefined
+            // const field= !!req.query.field ? req.query.field : undefined
+            // console.log(type);
+            // let condition={}
+            // if(!!type && field){
+            //      condition={
+            //         [field]:type
+            //     }
+            // }
+            const result = await productService.findProduct( {}, pageNumber, pageSize);
             res.json(result);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error });
         }
     }
@@ -123,28 +133,29 @@ class productController {
             res.status(500).json({ error });
         }
     }
-    // async sortProduct(req, res){
-    //     try {
-    //         const {type, field, pageNumber, pageSize}= req.query
-    //         if(type==0){
-    //             const condition={
-    //                 [field]:Number(type)
-    //             }
-    //             const result = await productService.findProduct(condition, pageNumber, pageSize);
-    //             res.json(result);
-    //         }
-    //         else{
-    //             const sort={
-    //                 [field]:Number(type),
-    //             }
-    //             const result = await productService.findProduct({}, pageNumber, pageSize, sort);
-    //             res.json(result);
-    //         }
-    //     } catch (error) {
-    //         console.log(error)
-    //         res.status(500).json({ error });
-    //     }
-    // }
+    async sortProduct(req, res){
+        try {
+            const {type, field, pageNumber, pageSize}= req.query
+            if(field!='createdAt'){
+                const condition={
+                    [field]:type
+                }
+                const result = await productService.findProduct(condition, pageNumber, pageSize);
+                res.json(result);
+            }
+            else{
+                const sort={
+                    [field]:Number(type),
+                    //số lượng bán >0
+                }
+                const result = await productService.findProduct({}, pageNumber, pageSize, sort);
+                res.json(result);
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ error });
+        }
+    }
 
     async search(req, res){
         try {
@@ -165,7 +176,7 @@ class productController {
                 {type:{ $regex: '.*' + data + '.*' } },
                 ...numberSearch
               ]
-            const result=await productService.findProduct({$or: searchValue}, pageNumber, pageSize,{})
+            const result=await productService.findProduct({$or: searchValue}, pageNumber, pageSize)
             res.json(result)
         } catch (error) {
             res.status(500).json({ error:error.message });
