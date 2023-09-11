@@ -35,15 +35,18 @@ class productController {
         try {
             const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
             const pageSize = req.query.pageSize ? req.query.pageSize : {}
-            // const type= !!req.query.type ? req.query.type : undefined
-            // const field= !!req.query.field ? req.query.field : undefined
-            // console.log(type);
+            // const type= !!req.query.type ? req.query.type : false
+            // const field= !!req.query.field ? req.query.field : false
             // let condition={}
-            // if(!!type && field){
+            // if(!!type && !!field){
             //      condition={
             //         [field]:type
             //     }
             // }
+            // else{
+            //     condition={}
+            // }
+            // console.log(condition);
             const result = await productService.findProduct( {}, pageNumber, pageSize);
             res.json(result);
         } catch (error) {
@@ -70,7 +73,7 @@ class productController {
             const result = await productService.findProduct({ brandId });
             res.json(result);
         } catch (error) {
-            res.status(500).json({ error });
+            res.status(500).json({ error })
         }
     }
 

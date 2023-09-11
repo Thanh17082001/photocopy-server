@@ -27,7 +27,6 @@ class codeService{
             emailUser,
             used:false,
             isValid:true,
-            resetTokenExpires: { $gt: Date.now() }
         })
         .sort({ createdAt: -1 })
         .lean()
