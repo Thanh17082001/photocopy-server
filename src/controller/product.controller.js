@@ -1,6 +1,6 @@
 import productService from '../service/product.service';
 import deepEqual from 'deep-equal';
-
+import puppeteer from 'puppeteer';
 import XLSX from 'xlsx'
 const fs = require("fs");
 class productController {
@@ -127,6 +127,7 @@ class productController {
             res.status(500).json({ error });
         }
     }
+
     async filterProduct(req, res){
         try {
             const {type, field, pageNumber, pageSize}= req.query
@@ -176,6 +177,7 @@ class productController {
             res.status(500).json({ error:error.message });
         }
     }
+
     async exportExcel(req, res){
         try {
             const data = req.body.data
@@ -198,28 +200,28 @@ class productController {
 
     async exportPDF(req, res){
         try {
-            const data= req.body
-            // const data = await productService.findProduct({}, 1, 8) // Dữ liệu bạn muốn xuất ra tệp Excel
+            const browser = await puppeteer.launch({ headless: 'new' });
+            const page = await browser.newPage();
+            const htmlString= req.body.data
+           
+            await page.setContent(htmlString);
+            const blob=await page.pdf({
+                format:'A4',
+                printBackground:true
+            })
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'inline; filename=table.pdf');
+            // Gửi buffer của tệp PDF về client
+          
+            res.send(blob);
 
         } catch (error) {
+            console.log(error);
             res.status(500).json(error)
         }
     }
 
-    async filterByDate(req, res){
-        try {
-            let {date}=req.query
-            const {field}= req.query
-            const start=new Date(date)
-            const end = new Date(start.getTime() + 24 * 60 * 60 * 1000)
-            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
-            const pageSize = req.query.pageSize ? req.query.pageSize : {}
-            const result = await productService.findByDate(start,end, field, pageNumber,pageSize)
-            res.json(result)
-        } catch (error) {
-            console.log(error);
-        }
-    }
     async filterByFullDate(req, res){
         try {
             const {month=undefined}= req.query

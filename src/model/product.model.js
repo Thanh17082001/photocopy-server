@@ -21,6 +21,10 @@ const productSchema = new Schema({
         type: Number,
         default:0
     },
+    rentalQuantity: {
+        type: Number,
+        default:0
+    },
     priceSale:{
         type: Number
     },
