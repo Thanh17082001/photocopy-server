@@ -1,5 +1,8 @@
 import productService from '../service/product.service';
 import deepEqual from 'deep-equal';
+
+import XLSX from 'xlsx'
+const fs = require("fs");
 class productController {
     async create(req, res) {
         try {
@@ -35,18 +38,6 @@ class productController {
         try {
             const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
             const pageSize = req.query.pageSize ? req.query.pageSize : {}
-            // const type= !!req.query.type ? req.query.type : false
-            // const field= !!req.query.field ? req.query.field : false
-            // let condition={}
-            // if(!!type && !!field){
-            //      condition={
-            //         [field]:type
-            //     }
-            // }
-            // else{
-            //     condition={}
-            // }
-            // console.log(condition);
             const result = await productService.findProduct( {}, pageNumber, pageSize);
             res.json(result);
         } catch (error) {
@@ -136,7 +127,7 @@ class productController {
             res.status(500).json({ error });
         }
     }
-    async sortProduct(req, res){
+    async filterProduct(req, res){
         try {
             const {type, field, pageNumber, pageSize}= req.query
             if(field!='createdAt'){
@@ -185,6 +176,68 @@ class productController {
             res.status(500).json({ error:error.message });
         }
     }
+    async exportExcel(req, res){
+        try {
+            const data = req.body.data
+            // const data = await productService.findProduct({}, 1, 8) // Dữ liệu bạn muốn xuất ra tệp Excel
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            const radom=Math.random()*10
+            
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });
+
+            res.setHeader("Content-Disposition", `attachment; filename=exported-file${radom}.xlsx`);
+            res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            res.send(excelBuffer);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async exportPDF(req, res){
+        try {
+            const data= req.body
+            // const data = await productService.findProduct({}, 1, 8) // Dữ liệu bạn muốn xuất ra tệp Excel
+
+        } catch (error) {
+            res.status(500).json(error)
+        }
+    }
+
+    async filterByDate(req, res){
+        try {
+            let {date}=req.query
+            const {field}= req.query
+            const start=new Date(date)
+            const end = new Date(start.getTime() + 24 * 60 * 60 * 1000)
+            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+            const pageSize = req.query.pageSize ? req.query.pageSize : {}
+            const result = await productService.findByDate(start,end, field, pageNumber,pageSize)
+            res.json(result)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    async filterByFullDate(req, res){
+        try {
+            const {month=undefined}= req.query
+            const {day=undefined}= req.query
+            const {year=undefined}= req.query
+            const {field}= req.query
+            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+            const pageSize = req.query.pageSize ? req.query.pageSize : {}
+            const result = await productService.findByDate(day,month,year,field,pageNumber,pageSize)
+            res.json(result);
+            
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }
+
+
 
 export default new productController();

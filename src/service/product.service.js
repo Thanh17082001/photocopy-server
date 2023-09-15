@@ -8,11 +8,11 @@ class productService {
         return await productModel.findOne({ brandId, name });
     }
 
-    async findProduct(condition, pageNumber, pageSize) {
+    async findProduct(condition, pageNumber, pageSize, sort = { createdAt: -1 }) {
         // co phan trang
-        if (!!pageNumber && !!pageSize) {
+        if (!!pageNumber && !!pageSize && sort) {
             const skip = (pageNumber - 1) * pageSize;
-            const result = await productModel.find(condition).skip(skip).limit(pageSize).sort({ createdAt: -1 }).lean();
+            const result = await productModel.find(condition).sort(sort).skip(skip).limit(pageSize).lean();
             return result;
         }
         // khong phan trang && khong dung de find private key
@@ -60,6 +60,35 @@ class productService {
             .populate('categoryId', ['_id', 'name']);
     }
 
+   
+    // loc theo ngay thang nam
+    async findByDate(day, month, year, field, pageNumber, pageSize) {
+        // co phan trang
+        const condition = {
+            $expr: {
+                $and: [],
+            },
+        };
+        if (day != 0) {
+            condition.$expr.$and.push({ $eq: [{ $dayOfMonth: '$' + field }, day] });
+        }
+        if (month != 0) {
+            condition.$expr.$and.push({ $eq: [{ $month: '$' + field }, month] });
+        }
+        if (year != 0) {
+            condition.$expr.$and.push({ $eq: [{ $year: '$' + field }, year] });
+        }
+        console.log(condition);
+        if (!!pageNumber && !!pageSize) {
+            const skip = (pageNumber - 1) * pageSize;
+            const result = await productModel.find(condition).sort({ createdAt: -1 }).skip(skip).limit(pageSize).lean();
+            return result;
+        }
+        // khong phan trang && khong dung de find private key
+        else {
+            return await productModel.find(condition).sort({ createdAt: -1 });
+        }
+    }
 }
 
 export default new productService();
