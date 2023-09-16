@@ -22,7 +22,10 @@ const entryReceipt = new Schema({
         type:Schema.Types.ObjectId,
         ref:'supplier'
     },
-    image:String
+    image: {
+        data: Buffer,
+        contentType: String
+    }
 }, {timestamps:true})
 
 export default mongoose.model('entryReceipt',entryReceipt)

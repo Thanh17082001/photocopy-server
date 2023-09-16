@@ -6,11 +6,15 @@ class entryReceiptController{
         const user = req.session.auth?.user || undefined
         if(!!user){
             if(!!req.body){
-                const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : undefined;
+                // const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : undefined;
                 const data={
                     ...req.body,
                     createBy:user._id,
-                    image
+                    image:
+                        {
+                            data:req.file.buffer,
+                            contentType:req.file.mimetype
+                        }
                 }
                 const result = await entryReceiptService.create(data);
                 if(!!result){
@@ -72,6 +76,15 @@ class entryReceiptController{
             res.status(500).json({error:error.message})
         }
     }
+    // async getById(req, res){
+    //     try {
+    //         const result = await imageService.findById(req.query.id)
+    //         res.send(result.image.data)
+    //     } catch (error) {
+    //         console.log(error);
+    //         res.status(500).json({error})
+    //     }
+    // }
     async filterByFullDate(req, res){
         try {
             const {month=undefined}= req.query
