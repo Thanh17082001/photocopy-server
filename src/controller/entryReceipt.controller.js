@@ -6,9 +6,11 @@ class entryReceiptController{
         const user = req.session.auth?.user || undefined
         if(!!user){
             if(!!req.body){
+                const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : undefined;
                 const data={
                     ...req.body,
-                    createBy:user._id
+                    createBy:user._id,
+                    image
                 }
                 const result = await entryReceiptService.create(data);
                 if(!!result){
@@ -18,7 +20,8 @@ class entryReceiptController{
                             product.idProduct,
                             {
                             inputQuantity:product.inputQuantity,
-                            priceImport:product.priceImport
+                            priceImport:product.priceImport,
+                            dateEntyReceipt:new Date()
                             }
                         )
 
@@ -67,6 +70,22 @@ class entryReceiptController{
             }
         } catch (error) {
             res.status(500).json({error:error.message})
+        }
+    }
+    async filterByFullDate(req, res){
+        try {
+            const {month=undefined}= req.query
+            const {day=undefined}= req.query
+            const {year=undefined}= req.query
+            const {field}= req.query
+            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+            const pageSize = req.query.pageSize ? req.query.pageSize : {}
+            const result = await entryReceiptService.findByDate(day,month,year,field,pageNumber,pageSize)
+            res.json(result);
+            
+            
+        } catch (error) {
+            console.log(error);
         }
     }
 }

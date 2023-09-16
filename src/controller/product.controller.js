@@ -213,7 +213,6 @@ class productController {
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', 'inline; filename=table.pdf');
             // Gửi buffer của tệp PDF về client
-          
             res.send(blob);
 
         } catch (error) {

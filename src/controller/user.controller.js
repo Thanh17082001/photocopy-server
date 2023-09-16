@@ -37,7 +37,7 @@ exports.login = async (req, res)=> {
         if(!!!req.session.auth){
             const {email, password} = req.body
             const user = await userService.findByEmail(email)
-            const verifyPass = !!user.password ? await argon2.verify(user.password, password): false
+            const verifyPass = !!user && !!user.password ? await argon2.verify(user.password, password): false
             if(verifyPass){
                 const token = jwt.sign({userId: user._id,isAdmin:user.isAdmin, roles:user.roles},process.env.PRIVATE_KEY_TOKEN,{expiresIn:'6h'})
                 req.session.auth = {
@@ -55,16 +55,22 @@ exports.login = async (req, res)=> {
                     }
                 })
             }else{
-                if(user.isGoogle){
-                    return res.json({mes:'Tài khoản được đăng nhập bằng Google' , status: false})
+                if(!!!user){
+                    return res.json({mes:'Tài khoản chưa được đăng ký' , status: false})
                 }
-                res.json({mes:'Tài khoản hoặc mật khẩu không chính xác' , status: false})
+                else if( user.isGoogle){
+                    return res.json({mes:'Tài khoản được đăng nhập bằng Google' , status: false})
+
+                } else{
+                    res.json({mes:'Tài khoản hoặc mật khẩu không chính xác' , status: false})
+                }
             }
         }
         else{
             res.json({mes:'Bạn đã đăng nhập', status: false})
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json({error})
     }
 }

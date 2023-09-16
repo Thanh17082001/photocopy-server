@@ -20,7 +20,20 @@ const specificationsSchema = new Schema ({
     },
     screen:{
         type:String
-    }
+    },
+    screenResolution:String,
+    ramMemory:String,
+    hardDrive:String,
+    bootTime:String,
+    zoom:String,
+    continuously:String,
+    connector:String,
+    operatingSystem:String,
+    electricUsed:String,
+    wattage:String,
+    weight:String
+
+
 }, {timestamps: true})
 
 export default mongoose.model('specifications', specificationsSchema)

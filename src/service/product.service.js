@@ -43,8 +43,9 @@ class productService {
                 {
                     $inc: { inputQuantity: data.inputQuantity },
                     $set: { priceImport: data.priceImport },
+                    dateEntyReceipt:data.dateEntyReceipt
                 },
-                { returnDocument: 'after' },
+                { returnDocument: 'after', upsert: true },
             )
             .lean();
     }

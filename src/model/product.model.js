@@ -45,6 +45,7 @@ const productSchema = new Schema({
         type:String,
         emum:['Đã qua sử dụng', 'Mới']
     },
+    dateEntyReceipt:Date
     
 }, {timestamps:true})
 
