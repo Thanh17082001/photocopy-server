@@ -13,6 +13,7 @@ route.post('/reset-pass',UserController.resetPass)
 route.post('/update',  upload('users').single('image'),UserController.updateUser)
 route.post('/change-pass',UserController.changePassword)
 route.get('/logout',UserController.logout)
+route.post('/disable/:id', UserController.disable)
 //login with google
 UserController.loginWithGoogle()
 function isLogged(req, res, next){
@@ -45,5 +46,6 @@ route.get('/info-user',(req, res)=>{
     // })
     res.json(req.session.auth)
 })
-
+route.get('/filter-date',UserController.filterByFullDate)
+route.get('/', UserController.getAll)
 export default route

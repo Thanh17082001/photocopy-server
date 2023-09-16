@@ -43,7 +43,6 @@ class entryReceiptService{
         if (year != 0) {
             condition.$expr.$and.push({ $eq: [{ $year: '$' + field }, year] });
         }
-        console.log(condition);
         if (!!pageNumber && !!pageSize) {
             const skip = (pageNumber - 1) * pageSize;
             const result = await entryReceiptModel

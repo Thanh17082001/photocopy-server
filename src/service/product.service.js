@@ -79,7 +79,6 @@ class productService {
         if (year != 0) {
             condition.$expr.$and.push({ $eq: [{ $year: '$' + field }, year] });
         }
-        console.log(condition);
         if (!!pageNumber && !!pageSize) {
             const skip = (pageNumber - 1) * pageSize;
             const result = await productModel.find(condition).sort({ createdAt: -1 }).skip(skip).limit(pageSize).lean();

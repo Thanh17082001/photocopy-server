@@ -35,6 +35,10 @@ const userShema = new Schema({
     isStaff:{
         type:Boolean,
         default:false
+    },
+    disable:{
+        type:Boolean,
+        default:false
     }
 }, {timestamps:true})
 

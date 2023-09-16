@@ -256,7 +256,48 @@ exports.changePassword = async (req, res) => {
             res.json({mes:'Bạn chưa đăng nhập'})
         }
     } catch (error) {
+        console.log(error);
+    }
+}
+//get all
+
+exports.getAll=async (req, res)=>{
+    try {
+        const {pageNumber=1, pageSize=8}= req.query
+        const result = await userService.findAllAndPagination({isAdmin:false}, pageNumber, pageSize)
+        res.json(result)
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+exports.filterByFullDate= async(req, res) =>{
+    try {
+        const {month=undefined}= req.query
+        const {day=undefined}= req.query
+        const {year=undefined}= req.query
+        const {field}= req.query
+        const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+        const pageSize = req.query.pageSize ? req.query.pageSize : {}
+        const result = await userService.findByDate(day,month,year,field,pageNumber,pageSize)
+        res.json(result);
         
+        
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+exports.disable=async (req, res)=>{
+    try {
+        const {id}= req.params
+        const data= {
+            ...req.body
+        }
+        const result = await userService.updateUserById(id,data);
+        res.json({mes:'Cập nhật thành công',status:true, data:result})
+    } catch (error) {
+        console.log(error);
     }
 }
 
