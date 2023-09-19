@@ -20,9 +20,11 @@ const userShema = new Schema({
         default:'/users/avt-default.jpg'
     },
     roles:[
-        {
-            type:Schema.Types.ObjectId,
-            ref: 'role'
+        { 
+            roleId:{
+                type:Schema.Types.ObjectId,
+                ref: 'role'
+            }
         }
     ],
     phoneNumber:{

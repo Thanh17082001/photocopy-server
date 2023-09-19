@@ -1,11 +1,11 @@
-import categoryService from "../service/category.service";
+import typeService from "../service/type.service";
 
-class categoryController{
+class typeController{
     async create(req, res){
         try {
             if(!!req.body.name){
                 const {name} = req.body
-                const exitsName = await categoryService.findByName(name)
+                const exitsName = await typeService.findByName(name)
                 const data={
                     name,
                 }
@@ -13,7 +13,7 @@ class categoryController{
                     res.json({mes:'Loại sản phẩm đã tồn tại', status:false})
                     return;
                 }
-                await categoryService.create(data)
+                await typeService.create(data)
                 res.send({mes:'Thêm thành công', status:true});
             }
             else{
@@ -27,7 +27,7 @@ class categoryController{
 
     async getAll(req, res){
         try {
-            const result = await categoryService.findAll()
+            const result = await typeService.findAll()
             res.json(result)
         } catch (error) {
             res.status(500).json({error})
@@ -36,4 +36,4 @@ class categoryController{
     
 }
 
-export default new categoryController();
+export default new typeController();

@@ -58,6 +58,7 @@ class productService {
         return await productModel
             .findById(id)
             .populate('brandId', ['_id', 'name'])
+            .populate('typeId', ['_id', 'name'])
             .populate('categoryId', ['_id', 'name']);
     }
 

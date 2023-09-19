@@ -10,11 +10,11 @@ class entryReceiptController{
                 const data={
                     ...req.body,
                     createBy:user._id,
-                    image:
+                    image: !!req.file ?
                         {
                             data:req.file.buffer,
                             contentType:req.file.mimetype
-                        }
+                        } : undefined
                 }
                 const result = await entryReceiptService.create(data);
                 if(!!result){

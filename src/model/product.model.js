@@ -10,6 +10,10 @@ const productSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'category'
     },
+    typeId:{
+        type:Schema.Types.ObjectId,
+        ref:'type'
+    },
     name:{
         type:String
     },
@@ -41,10 +45,7 @@ const productSchema = new Schema({
     image:{
         type:String
     },
-    type:{
-        type:String,
-        emum:['Đã qua sử dụng', 'Mới']
-    },
+   
     dateEntyReceipt:Date
     
 }, {timestamps:true})

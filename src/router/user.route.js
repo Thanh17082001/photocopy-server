@@ -14,6 +14,7 @@ route.post('/update',  upload('users').single('image'),UserController.updateUser
 route.post('/change-pass',UserController.changePassword)
 route.get('/logout',UserController.logout)
 route.post('/disable/:id', UserController.disable)
+route.post('/update-role/', UserController.updateRole) //?id=
 //login with google
 UserController.loginWithGoogle()
 function isLogged(req, res, next){
@@ -37,14 +38,12 @@ route.get('/google/callback', passport.authenticate('google', { failureRedirect:
     res.redirect(`http://localhost:3001`);
 })
 route.get('/info-user',(req, res)=>{
-    // res.json({
-    //     mes:'Đăng nhập thành công',
-    //     status:true, 
-    //     user:{
-    //     ...req.session.auth
-    //     }
-    // })
-    res.json(req.session.auth)
+    if(!!req.session.auth){
+        res.json(req.session.auth)
+    }
+    else{
+        res.json({})
+    }
 })
 route.get('/filter-date',UserController.filterByFullDate)
 route.get('/', UserController.getAll)

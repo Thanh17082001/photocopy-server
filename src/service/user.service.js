@@ -64,6 +64,24 @@ class UserService{
             return await userModel.find(condition).sort({ createdAt: -1 });
         }
     }
+
+    async updateRole(id, roleId, type){
+        if(type =='add'){
+            return await userModel.findByIdAndUpdate(
+                id,
+                {$addToSet: { roles: { roleId: roleId } }},
+                {returnDocument:'after', upsert:true}
+            )
+        }
+        else if(type =='remove'){
+            return await userModel.findByIdAndUpdate(
+                id,
+                { $pull: { roles: { roleId: roleId } } },
+                {returnDocument:'after', upsert:true}
+            )
+        }
+        
+    }
 }
 
 export default new UserService();

@@ -6,6 +6,7 @@ import codeService from "../service/code.service";
 import deepEqual from "deep-equal";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { assign } from "nodemailer/lib/shared";
 // Dang ky tai khoan
 exports.register = async (req, res) => {
     try {
@@ -296,6 +297,23 @@ exports.disable=async (req, res)=>{
         }
         const result = await userService.updateUserById(id,data);
         res.json({mes:'Cập nhật thành công',status:true, data:result})
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+exports.updateRole = async (req, res)=>{
+    try {
+        const {id=undefined} = req.query
+        const roleId = req.body.roleId
+        const type = req.body.type
+        if(!!id){
+            const result = await userService.updateRole(id,roleId,type)
+            res.json({me:'Cập nhật thành công',status:true, data:result})
+        }
+        else{
+            res.json({mes:'chưa truyền dữ liệu', status:false})
+        }
     } catch (error) {
         console.log(error);
     }

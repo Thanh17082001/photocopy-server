@@ -9,14 +9,8 @@ class productController {
             if (!!req.body) {
                 const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : 'khong co';
                 const data = {
-                    brandId: req.body.brandId,
-                    categoryId: req.body.categoryId,
-                    name: req.body.name,
-                    priceSale: req.body.priceSale,
-                    priceRental: req.body.priceRental,
-                    description: req.body.description || '',
+                    ...req.body,
                     image: image,
-                    type: req.body.type,
                 };
                 const existProduct = await productService.checkExistNameAndBrandId(data.name, data.brandId);
                 if (!!existProduct) {
@@ -76,17 +70,23 @@ class productController {
             const oldProduct = {
                 brandId: product.brandId.toString(),
                 categoryId: product.categoryId.toString(),
+                typeId: product.typeId.toString(),
                 name: product.name,
                 priceSale: product.priceSale,
                 priceRental: product.priceRental,
                 description: product.description,
                 image: product.image,
-                type: product.type,
             };
             const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : product.image;
             if (!!req.body) {
                 const newProduct = {
-                    ...req.body,
+                    brandId: req.body.brandId.toString(),
+                    categoryId: req.body.categoryId.toString(),
+                    typeId: req.body.typeId.toString(),
+                    name: req.body.name,
+                    priceSale: req.body.priceSale,
+                    priceRental: req.body.priceRental,
+                    description: req.body.description,
                     image,
                 };
                 const isEqual = deepEqual(oldProduct, newProduct);
