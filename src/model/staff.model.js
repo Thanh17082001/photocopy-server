@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const staffSchema = new Schema({
-    userId:{
+    idUser:{
         type:Schema.Types.ObjectId,
         ref:'user'
     },
@@ -44,6 +44,10 @@ const staffSchema = new Schema({
     salary:{
         type:Number,
         default:0
+    },
+    avatar:{
+        type:String,
+        default:'/users/avt-default.jpg'
     }
 }, {timestamps: true})
 

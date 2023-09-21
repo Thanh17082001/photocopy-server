@@ -12,7 +12,6 @@ class roleSerVice{
 
     async update(id, data){
         return await roleModel.findByIdAndUpdate(id, data, {returnDocument:'after', upsert:true})
-
     }
 
     async findById(id){

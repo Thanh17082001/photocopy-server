@@ -200,15 +200,27 @@ class productController {
 
     async exportPDF(req, res){
         try {
+            const {pageDirection} = req.query
             const browser = await puppeteer.launch({ headless: 'new' });
             const page = await browser.newPage();
             const htmlString= req.body.data
-           
             await page.setContent(htmlString);
-            const blob=await page.pdf({
-                format:'A4',
-                printBackground:true
-            })
+            let blob
+            if(pageDirection ==='vertical'){
+                 blob=await page.pdf({
+                    format:'A4',
+                    printBackground:true,
+                })
+                console.log('dọc');
+            }
+            else{
+                 blob=await page.pdf({
+                    format:'A4',
+                    printBackground:true,
+                    landscape:true
+                })
+                console.log('ngang');
+            }
 
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', 'inline; filename=table.pdf');
