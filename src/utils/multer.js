@@ -5,7 +5,6 @@ const upload = function(folder=''){
         return multer({
             storage: multer.diskStorage({
                 destination: (req, file, cb) => {
-                    console.log(path.dirname(__dirname));
                     cb(null, path.join(path.dirname(__dirname), 'public',folder));
                 },
                 filename: (req, file, cb) => {

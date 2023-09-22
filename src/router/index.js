@@ -9,6 +9,7 @@ import supplierRoute from './supplier.route';
 import companyRoute from './company.route';
 import roleRoute from './role.route';
 import staffRoute from './staff.route';
+import accessoryRoute from './accessory.route';
 
 const routers = (app) => {
     app.use('/user', userRoute);
@@ -22,6 +23,7 @@ const routers = (app) => {
     app.use('/company', companyRoute);
     app.use('/role', roleRoute);
     app.use('/staff', staffRoute);
+    app.use('/accessory', accessoryRoute);
     app.use('/', (req, res) => {
         res.send('Hom page');
     });

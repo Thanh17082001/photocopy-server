@@ -82,7 +82,7 @@ class productService {
         }
         if (!!pageNumber && !!pageSize) {
             const skip = (pageNumber - 1) * pageSize;
-            const result = await productModel.find(condition).sort({ createdAt: -1 }).skip(skip).limit(pageSize).lean();
+            const result = await productModel.find(condition).sort({ createdAt: -1 }).skip(skip).limit(pageSize).lean()
             return result;
         }
         // khong phan trang && khong dung de find private key
