@@ -2,29 +2,38 @@ import mongoose  from "mongoose";
 import { Schema } from "mongoose";
 
 const orderSchema = new Schema({
-    userId:{
+    customerId:{
         type:Schema.Types.ObjectId,
-        ref:'user'
+        ref:'customer'
     },
     products:[
         {
             productId: {
                 type:Schema.Types.ObjectId,
-                ref:'product'
+                refPath:'products.typeProduct',
+            },
+            typeProduct:{
+                type:String,
+                default:'product',
+                enum:['product','accessory']
             },
             quanlity:Number
         }
     ],
     totalAmount:Number,
-    nameCustomer:{
-        type:String
+    IsOnlineOrder:{
+        type:Boolean,
+        default:false
     },
     status:{
         type:String,
         enum:['Đang xử lý', 'Đang vận chuyển', 'Đã giao hàng']
     },
-    phoneNumber:String,
-    address:String
+    PaymentMethod:String,
+    isPayment:{
+        type:Boolean,
+        default:false
+    }
 },{timestamps:true})
 
 export default mongoose.model('order', orderSchema)

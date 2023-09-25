@@ -10,12 +10,14 @@ class productController {
                     ...req.body,
                     image: image,
                 };
+                data.idBrand=!!req.body.idBrand ? req.body.idBrand : null
                 await accessoryService.create(data);
                 res.json({ mes: 'Thêm phụ kiện thành công', status: true });
             } else {
                 res.json({ mes: 'Dữ liệu trống', status: false });
             }
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error });
         }
     }
@@ -66,7 +68,7 @@ class productController {
                     priceSale: req.body.priceSale,
                     description: req.body.description,
                     image,
-                    fits:req.body.fits
+                    fits:!!req.body.fits ? req.body.fits :[]
                 };
                 const isEqual = deepEqual(oldAcc, newAcc)
                 if (isEqual) {

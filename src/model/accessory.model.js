@@ -2,6 +2,16 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const accessorySchema = new Schema({
+    idBrand:{
+        type:Schema.Types.ObjectId,
+        ref:'brand',
+        default:null
+    },
+    idType:{
+        type:Schema.Types.ObjectId,
+        ref:'type-accessory',
+        default:null
+    },
     name:String,
     image:String,
     inputQuantity: {
@@ -29,6 +39,7 @@ const accessorySchema = new Schema({
                 ref:'product'
             }
         }
-    ]
+    ],
+    dateEntyReceipt:Date
 }, {timestamps:true})
 export default mongoose.model('accessory', accessorySchema)

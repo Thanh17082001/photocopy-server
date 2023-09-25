@@ -1,3 +1,4 @@
+
 import entryReceiptModel from "../model/entryReceipt.model";
 
 class entryReceiptService{
@@ -20,12 +21,16 @@ class entryReceiptService{
     async findById(id){
         return await entryReceiptModel
             .findById(id)
-            .populate('products.idProduct', ['name'])
+            .populate('products.idProduct')
             .populate('createBy',['fullName','phoneNumber'])
             .populate('supplier')
             .lean();
     }
-
+    async update(id, data){
+        return await entryReceiptModel.findByIdAndUpdate(
+            id,data,{returnDocument:'after',upsert:true}
+        )
+    }
      // loc theo ngay thang nam
      async findByDate(day, month, year, field, pageNumber, pageSize) {
         // co phan trang
@@ -60,6 +65,8 @@ class entryReceiptService{
             return await entryReceiptModel.find(condition).sort({ createdAt: -1 });
         }
     }
+
+    
 }
 
 export default new entryReceiptService()

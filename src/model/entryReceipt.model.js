@@ -11,7 +11,12 @@ const entryReceipt = new Schema({
         {
             idProduct:{
                 type:Schema.Types.ObjectId,
-                ref:'product'
+                refPath:'products.typeProduct',
+            },
+            typeProduct:{
+                type:String,
+                enum:['product', 'accessory'],
+                default:'product'
             },
             inputQuantity:Number,
             priceImport:Number
@@ -25,7 +30,7 @@ const entryReceipt = new Schema({
     image: {
         data: Buffer,
         contentType: String
-    }
+    },
 }, {timestamps:true})
 
 export default mongoose.model('entryReceipt',entryReceipt)

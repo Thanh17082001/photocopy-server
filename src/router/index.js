@@ -10,12 +10,15 @@ import companyRoute from './company.route';
 import roleRoute from './role.route';
 import staffRoute from './staff.route';
 import accessoryRoute from './accessory.route';
+import typeAcc from './type.Accroute'
+import customerRoute from './customer.route'
 
 const routers = (app) => {
     app.use('/user', userRoute);
     app.use('/brand', brandRoute);
     app.use('/category', categoryRoute);
     app.use('/type', typeRoute);
+    app.use('/type-acc', typeAcc);
     app.use('/product', productRoute);
     app.use('/spacification', specificationsRoute);
     app.use('/entry-receipt', entryReceiptRoute);
@@ -24,9 +27,10 @@ const routers = (app) => {
     app.use('/role', roleRoute);
     app.use('/staff', staffRoute);
     app.use('/accessory', accessoryRoute);
+    app.use('/customer', customerRoute)
     app.use('/', (req, res) => {
         res.send('Hom page');
-    });
+    })
 };
 
 export default routers;

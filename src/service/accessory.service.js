@@ -14,6 +14,8 @@ class accessoryService{
         return await accessoryModel
             .findById(id)
             .populate('fits.product')
+            .populate('idBrand')
+            .populate('idType')
             .lean()
     }
 
@@ -45,6 +47,19 @@ class accessoryService{
     }
     async update(id, data){
         return await accessoryModel.findByIdAndUpdate(id, data, {returnDocument:'after', upsert:true}) 
+    }
+    async updateAfterEntry(id, data) {
+        return accessoryModel
+            .findByIdAndUpdate(
+                id,
+                {
+                    $inc: { inputQuantity: data.inputQuantity },
+                    $set: { priceImport: data.priceImport },
+                    dateEntyReceipt:data.dateEntyReceipt
+                },
+                { returnDocument: 'after', upsert: true },
+            )
+            .lean();
     }
 }
 

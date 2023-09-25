@@ -4,7 +4,7 @@ import { Schema } from "mongoose";
 const customerSchema = new Schema({
     fullname:String,
     address:String,
-    phoneNumber:String,
+    phone:String,
     email:String,
 }, {timestamps:true})
 

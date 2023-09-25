@@ -1,5 +1,6 @@
 import entryReceiptService from "../service/entryReceipt.service";
 import productService from "../service/product.service";
+import accessoryService from "../service/accessory.service"
 class entryReceiptController{
     async create(req, res) {
       try {
@@ -19,16 +20,27 @@ class entryReceiptController{
                 const result = await entryReceiptService.create(data);
                 if(!!result){
                     const products= result.products;
-                    products.forEach(async (product) =>{
-                        await productService.updateAfterEntry(
-                            product.idProduct,
-                            {
-                            inputQuantity:product.inputQuantity,
-                            priceImport:product.priceImport,
-                            dateEntyReceipt:new Date()
-                            }
-                        )
-
+                   products.forEach(async (product) =>{
+                        if(product.typeProduct === 'product'){
+                                await productService.updateAfterEntry(
+                                    product.idProduct,
+                                    {
+                                    inputQuantity:product.inputQuantity,
+                                    priceImport:product.priceImport,
+                                    dateEntyReceipt:new Date()
+                                    }
+                                )
+                        }
+                        else if(product.typeProduct === 'accessory'){
+                            await accessoryService.updateAfterEntry(
+                                product.idProduct,
+                                {
+                                inputQuantity:product.inputQuantity,
+                                priceImport:product.priceImport,
+                                dateEntyReceipt:new Date()
+                                }
+                            )
+                        }
                     })
                     res.json({mes:'Tạo thành công', status:true})
                 }
@@ -96,6 +108,20 @@ class entryReceiptController{
             const result = await entryReceiptService.findByDate(day,month,year,field,pageNumber,pageSize)
             res.json(result);
             
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    async update(req, res){
+        try {
+            const {id}=req.query
+            const entry= await entryReceiptService.findById(id)
+            // console.log(entry.products);
+            // entry.products.map(product => product.typeProduct='product')
+            // const data=entry.products
+            // const a= await entryReceiptService.update(id, {products:data})
+            res.json(entry)
             
         } catch (error) {
             console.log(error);
