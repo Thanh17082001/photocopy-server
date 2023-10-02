@@ -37,7 +37,7 @@ const rentalSchema = new Schema({
     status:{
         type:String,
         default:'Đang xử lý',
-        enum:['Đang xử lý', 'Đang vận chuyển', 'Đã giao hàng', 'Đang sử dụng','Dừng thuê']
+        enum:['Đang xử lý', 'Đang vận chuyển', 'Đã giao hàng', 'Đang sử dụng','Dừng thuê','Hủy đơn']
     },
     paymentMethod:{
         type:String,

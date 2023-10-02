@@ -21,7 +21,6 @@ class rentalController{
                      const result=await rentalService.create(data)
                      if(!!result){
                          const products = req.body.products
-                         console.log(products);
                          products.forEach(async (product) =>{
                             await productService.updateAfterRental(product.productId,{quantity:Number(product.quantity)})
                          })
@@ -76,8 +75,25 @@ class rentalController{
                     const data={
                         ...req.body
                     }
-                    const result = await rentalService.update(id, data)
-                    res.json({mes:'Cập nhật thành công', status:true, data:result})
+                if(data.status == 'Dừng thuê'){
+                    data.products.forEach(async (product) =>{
+                        await productService.updateAfterStopRental(product.productId,{quantity:Number(product.quantity)})
+                     })
+                    
+                }
+                if(data.status=='Hủy đơn' ){
+                    const rental= await rentalService.findById(id)
+                    if(rental.status =='Dừng thuê' || rental.status=='Đang vận chuyển' || rental.status=='Đã giao hàng' || rental.status=='Đang sử dụng'){
+                        return res.json({mes:'Không thể hủy đơn',status:false})
+                    }
+                    else{
+                        const result = await rentalService.update(id, {status:data.status})
+                        return res.json({mes:'Cập nhật thành công', status:true, data:result})
+                    }
+
+                }
+                const result = await rentalService.update(id, {status:data.status})
+                res.json({mes:'Cập nhật thành công', status:true, data:result})
             }
             else{
                 res.status(400).json({mes:'Chưa truyền dữ liệu'})

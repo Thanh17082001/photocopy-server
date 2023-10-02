@@ -78,6 +78,17 @@ class orderController{
                     const data={
                         ...req.body
                     }
+                    if(data.status=='Hủy đơn' ){
+                        const rental= await orderService.findById(id)
+                        if( rental.status=='Đang vận chuyển' || rental.status=='Đã giao hàng' || rental.status=='Đang sử dụng'){
+                            res.json({mes:'Không thể hủy đơn',status:false})
+                        }
+                        else{
+                            const result = await orderService.update(id, {status:data.status})
+                            return res.json({mes:'Cập nhật thành công', status:true, data:result})
+                        }
+    
+                    }
                     const result = await orderService.update(id, data)
                     res.json({mes:'Cập nhật thành công', status:true, data:result})
             }

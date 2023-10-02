@@ -114,6 +114,18 @@ class productService {
             {returnDocument:'after'}
         )
     }
+    async updateAfterStopRental(id,data){
+        return await productModel.findByIdAndUpdate(
+            id,
+            {
+                $inc: {
+                    inputQuantity: data.quantity,
+                    rentalQuantity: -data.quantity
+                }
+            },
+            {returnDocument:'after'}
+        )
+    }
 }
 
 export default new productService();

@@ -36,7 +36,7 @@ const orderSchema = new Schema({
     status:{
         type:String,
         default:'Đang xử lý',
-        enum:['Đang xử lý', 'Đang vận chuyển', 'Đã giao hàng']
+        enum:['Đang xử lý', 'Đang vận chuyển', 'Đã giao hàng','Hủy đơn']
     },
     paymentMethod:{
         type:String,
