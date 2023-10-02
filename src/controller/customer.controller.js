@@ -4,6 +4,11 @@ class customerController{
     async  create(req, res) {
         try {
             if(!!req.body){
+                const exit = await customerService.find({phone:req.body.phone, address:req.body.address, fullName:req.body.fullName})
+                if(exit.length >0){
+                    res.json({mes:'Khách hàng tồn tại',status:false})
+                    return;
+                }
                  await customerService.create(req.body)
                  res.json({mes:'Thêm khách hàng thành công',status:true});
             }

@@ -45,8 +45,8 @@ const productSchema = new Schema({
     image:{
         type:String
     },
-   
-    dateEntyReceipt:Date
+    dateEntyReceipt:Date,
+    warrantyTime:Number
     
 }, {timestamps:true})
 

@@ -90,6 +90,30 @@ class productService {
             return await productModel.find(condition).sort({ createdAt: -1 });
         }
     }
+    async updateAfterOrder(id,data){
+        return await productModel.findByIdAndUpdate(
+            id,
+            {
+                $inc: {
+                    inputQuantity: -data.quantity,
+                    soldQuantity: data.quantity
+                }
+            },
+            {returnDocument:'after',upsert:true}
+        )
+    }
+    async updateAfterRental(id,data){
+        return await productModel.findByIdAndUpdate(
+            id,
+            {
+                $inc: {
+                    inputQuantity: -data.quantity,
+                    rentalQuantity: data.quantity
+                }
+            },
+            {returnDocument:'after'}
+        )
+    }
 }
 
 export default new productService();

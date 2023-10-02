@@ -49,7 +49,7 @@ class accessoryService{
         return await accessoryModel.findByIdAndUpdate(id, data, {returnDocument:'after', upsert:true}) 
     }
     async updateAfterEntry(id, data) {
-        return accessoryModel
+        return await accessoryModel
             .findByIdAndUpdate(
                 id,
                 {
@@ -60,6 +60,15 @@ class accessoryService{
                 { returnDocument: 'after', upsert: true },
             )
             .lean();
+    }
+    async updateAfterOrder(id,data){
+       return await accessoryModel.findByIdAndUpdate(
+            id,
+            {
+                $inc:{inputQuantity:-data.quantity, soldQuantity:data.quantity},
+            },
+            {returnDocument:'after',upsert:true}
+        )
     }
 }
 

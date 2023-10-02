@@ -76,6 +76,7 @@ class productController {
                 priceRental: product.priceRental,
                 description: product.description,
                 image: product.image,
+                warrantyTime:product.warrantyTime
             };
             const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : product.image;
             if (!!req.body) {
@@ -88,6 +89,7 @@ class productController {
                     priceRental: req.body.priceRental,
                     description: req.body.description,
                     image,
+                    warrantyTime:req.body.warrantyTime
                 };
                 const isEqual = deepEqual(oldProduct, newProduct);
                 if (isEqual) {
@@ -211,7 +213,6 @@ class productController {
                     format:'A4',
                     printBackground:true,
                 })
-                console.log('dọc');
             }
             else{
                  blob=await page.pdf({
@@ -219,7 +220,6 @@ class productController {
                     printBackground:true,
                     landscape:true
                 })
-                console.log('ngang');
             }
 
             res.setHeader('Content-Type', 'application/pdf');
@@ -232,7 +232,7 @@ class productController {
             res.status(500).json(error)
         }
     }
-
+    
     async filterByFullDate(req, res){
         try {
             const {month=undefined}= req.query
