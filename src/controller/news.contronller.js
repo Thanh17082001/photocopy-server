@@ -6,7 +6,7 @@ class newsController{
             const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : '';
             const data = {
                 ...req.body,
-                logo: image||undefined
+                image: image||undefined
             }
             const result = await newsService.create(data)
             !!result ? res.json({mes:'Thêm tin tức thành công', status:true}): res.json({mes:'Thêm không thành công', status:false})
@@ -31,7 +31,7 @@ class newsController{
         try {
             const {id=undefined} = req.query
             if(!!id){
-                const result = await orderService.findById(id)
+                const result = await newsService.findById(id)
                 res.json(result)
             }
             else{
@@ -45,27 +45,28 @@ class newsController{
     async update(req, res){
         try {
             const {id=undefined} = req.query
-
+            console.log(req.body);
             if(!!id && !!req.body){
                 const news= await newsService.findById(id)
                 const newsOld = {
+                    createBy:news.createBy?.toString(),
                     title:news.title,
                     content:news.content,
                     image:news.image
                 }
-                const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : companyFindById.logo;
+                const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : news.image;
                 const newsNew= {
+                    createBy:req.body.createBy,
                     title:req.body.title,
                     content:req.body.content,
                     image:image 
                 }
                 const isEqual = deepEqual(newsOld, newsNew)
-                console.log(isEqual);
                 if(isEqual || !!!req.body){
                     res.json({ mes: 'Chưa chỉnh sửa dữ liệu', status: false });
                 }
                 else{
-                    const result = await newsService.updateById(id,newsNew)
+                    const result = await newsService.update(id,newsNew)
                     res.json({mes:'Cập nhật thành công', status:true, data:result})
                 }
             }
@@ -75,6 +76,43 @@ class newsController{
         } catch (error) {
             console.log(error);
             res.status(500).json({error})
+        }
+    }
+    async filterByFullDate(req, res){
+        try {
+            const {month=undefined}= req.query
+            const {day=undefined}= req.query
+            const {year=undefined}= req.query
+            const {field}= req.query
+            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+            const pageSize = req.query.pageSize ? req.query.pageSize : {}
+            const result = await newsService.findByDate(day,month,year,field,pageNumber,pageSize)
+            res.json(result);
+            
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async delete(req, res){
+        try {
+            const {id=undefined} = req.query
+            if(!!id){
+                const result  = await newsService.delete(id)
+                if(!!result){
+                    res.json({mes:'Xóa thành công',status:true})
+                }
+                else{
+                    res.json({mes:'Xóa không thành công',status:false})
+
+                }
+            }
+            else{
+                res.json({mes:'Chưa truyền tham số id',status:false})
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
     

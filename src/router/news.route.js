@@ -6,5 +6,7 @@ const router = express.Router()
 router.post('/create',upload('news').single('image'),newsController.create )
 router.post('/update',upload('news').single('image'),newsController.update )
 router.get('/find',newsController.getById)
+router.get('/delete',newsController.delete) // id=
+router.get('/filter-date',newsController.filterByFullDate)
 router.get('/', newsController.getAll)
 export default router;

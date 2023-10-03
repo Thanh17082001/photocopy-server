@@ -14,6 +14,7 @@ import typeAcc from './type.Accroute'
 import customerRoute from './customer.route'
 import orderRoute from './order.route'
 import rentalRoute from './rental.route'
+import newsRoute from './news.route'
 
 const routers = (app) => {
     app.use('/user', userRoute);
@@ -32,6 +33,7 @@ const routers = (app) => {
     app.use('/customer', customerRoute)
     app.use('/order', orderRoute)
     app.use('/rental', rentalRoute)
+    app.use('/news', newsRoute)
     app.use('/', (req, res) => {
         res.send('Hom page');
     })

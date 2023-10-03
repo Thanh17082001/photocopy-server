@@ -9,6 +9,7 @@ class newsService{
         const skip = !!pageNumber && !!pageSize ? (pageNumber - 1) * pageSize : {};
         return await newsModel
             .find(condition)
+            .populate('createBy',['fullName','phoneNumber'])
             .sort(sort)
             .skip(skip)
             .limit(pageSize)
@@ -22,6 +23,8 @@ class newsService{
     async findById(id){
         return await newsModel
         .findById(id)
+        .populate('createBy',['fullName','phoneNumber'])
+        .lean()
     }
 
     // loc theo ngay thang nam
@@ -50,6 +53,9 @@ class newsService{
         else {
             return await newsModel.find(condition).sort({ createdAt: -1 });
         }
+    }
+    async delete(id){
+        return newsModel.findByIdAndDelete(id)
     }
 }
 
