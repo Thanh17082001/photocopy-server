@@ -9,8 +9,12 @@ const orderSchema = new Schema({
     },
     customerId:{
         type:Schema.Types.ObjectId,
-        ref:'customer'
+        ref:'customer',
+        default:null
     },
+    phone:String,
+    nameCustomer:String,
+    address:String,
     products:[
         {
             productId: {

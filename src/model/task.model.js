@@ -4,19 +4,25 @@ import { Schema } from "mongoose";
 const taskSchema = new Schema({
     serviceId:{
         type:Schema.Types.ObjectId,
-        ref:'service'
+        ref:'service',
+        default:null
     },
     staffId:{
         type:Schema.Types.ObjectId,
-        ref:'staff'
+        ref:'staff',
+        default:null
     },
     startDate:Date,
-    dealine:Date,
-    description:String,
+    endDate:Date,
+    currentDate:Date,
     totalAmount:Number,
+    nameCustomer:String,
+    phone:String,
+    address:String,
     status:{
         type:String,
-        enum:['Hoàn thành', 'Đang tiến hành','Trễ hạn']
+        enum:['Hoàn thành', 'Đang tiến hành', 'Chưa bắt đầu', 'Quá hạn'],
+        default:'Chưa bắt đầu'
     }
 },{timestamps:true})
 

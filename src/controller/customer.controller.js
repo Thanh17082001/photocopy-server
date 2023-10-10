@@ -58,13 +58,11 @@ class customerController{
                     fullName:customer.fullName,
                     address:customer.address,
                     phone:customer.phone,
-                    email:customer.email,
                 }
                 const newCustomer= {
                     fullName:req.body.fullName,
                     address:req.body.address,
                     phone:req.body.phone,
-                    email:req.body.email,
                 }
                 const equal = deepEqual(oldeCustomer, newCustomer)
     

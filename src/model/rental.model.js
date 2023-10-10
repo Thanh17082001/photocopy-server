@@ -11,6 +11,9 @@ const rentalSchema = new Schema({
         ref:'user',
         default:null
     },
+    phone:String,
+    nameCustomer:String,
+    address:String,
     products:[
         {
             productId: {

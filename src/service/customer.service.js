@@ -15,7 +15,7 @@ class customerSerVice{
     }
 
     async findById(id){
-        return await customerModel.findById(id)
+        return await customerModel.findById(id).lean()
     }
 }
 

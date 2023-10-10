@@ -69,6 +69,7 @@ class rentalController{
     }
 
     async update(req, res){
+        
         try {
             const {id=undefined} = req.query
             if(!!id && !!req.body){

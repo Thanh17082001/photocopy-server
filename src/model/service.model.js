@@ -3,7 +3,8 @@ import { Schema } from "mongoose";
 
 const serviceSchema = new Schema({
     name:String,
-    price:Number
+    price:Number,
+    description:String,
 },{timestamps:true})
 
 export default mongoose.model('service',serviceSchema)
