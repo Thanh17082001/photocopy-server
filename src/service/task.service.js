@@ -1,5 +1,4 @@
 import taskModel from '../model/task.model'
-
 class taskService{
     async create(data){
         return await taskModel.create(data)
@@ -25,6 +24,7 @@ class taskService{
         return await taskModel
         .findById(id)
         .populate('staffId')
+        .populate('serviceId')
         .lean()
     }
 

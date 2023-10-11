@@ -15,7 +15,10 @@ const taskSchema = new Schema({
     startDate:Date,
     endDate:Date,
     currentDate:Date,
-    totalAmount:Number,
+    totalAmount:{
+        type:Number,
+        default:0
+    },
     nameCustomer:String,
     phone:String,
     address:String,
