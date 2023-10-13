@@ -20,6 +20,15 @@ class rentalService{
     async update(id, data){
         return await rentalModel.findByIdAndUpdate(id, data, {returnDocument:'after', upsert:true})
     }
+    async update2(id, pricePayed){
+        return await rentalModel.findByIdAndUpdate(
+            id, {
+                    $inc:{
+                        pricePayed:+pricePayed
+                    }
+                },
+            {returnDocument:'after', upsert:true})
+    }
 
     async findById(id){
         return await rentalModel

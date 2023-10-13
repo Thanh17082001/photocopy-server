@@ -11,11 +11,19 @@ class rentalController{
                 if(!!req.body){
                     const startDate=new Date()
                     const endDate= new Date()
+                    let datePay= new Date()
                     endDate.setMonth(startDate.getMonth() + req.body.quantityMonth);
+                    if(req.body.payInFull || req.body.quantityMonth==1){
+                        datePay=endDate
+                    }
+                    else{
+                        datePay.setMonth(startDate.getMonth() + 1);
+                    }  
                     const data={
                         ...req.body,
                         startDate:startDate,
-                        endDate:endDate
+                        endDate:endDate,
+                        datePay
 
                     }
                      const result=await rentalService.create(data)
@@ -196,21 +204,146 @@ class rentalController{
         let hmac = crypto.createHmac("sha512", secretKey);
         let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
         if(vnp_Params['vnp_ResponseCode'] == '00') {
-            const a = await rentalService.update(vnp_Params['vnp_TxnRef'],{isPayment:true,paymentMethod:'Online'})
-            if(secureHash === signed){
+            const rental=await rentalService.findById(vnp_Params['vnp_TxnRef'])
+            console.log(vnp_Params['vnp_Amount']);
+            if(rental.payInFull && rental.totalAmount == vnp_Params['vnp_Amount']/100){
+                await rentalService.update(vnp_Params['vnp_TxnRef'],{isPayment:'Đã thanh toán',paymentMethod:'VNPAY', pricePayed:rental.totalAmount})
                 return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)
-                
-            } else{
-                return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
+            }
+            else{
+                if(rental.pricePayed>0){
+                    rental.datePay.setMonth(rental.datePay.getMonth()+1)
+                }
+                await rentalService.update(vnp_Params['vnp_TxnRef'],{isPayment:'Thanh toán theo tháng',paymentMethod:'VNPAY', datePay:rental.datePay, payInFull:false})
+                await rentalService.update2(vnp_Params['vnp_TxnRef'],rental.priceMonth)
+                return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)
             }
         }
         else{
+            await rentalService.update(vnp_Params['vnp_TxnRef'],{isPayment:'Chưa thanh toán',paymentMethod:'VNPAY'})
             return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
         }
         
     }
 
     
+    
+    
+    async paymetnWithMoMO(req, res){
+        const url = req.query.url
+        //parameters
+        const partnerCode = "MOMO";
+        const accessKey = "F8BBA842ECF85";
+        const secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+        const requestId = req.body.orderId +new Date().getTime();
+        const orderId = requestId;
+        const orderInfo = "Thanh toán đơn hàng thuê";
+        const redirectUrl = `http://localhost:3000/rental/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
+        const ipnUrl = `http://localhost:3000/rental/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
+        const amount = req.body.totalAmount? req.body.totalAmount : 0;
+        const requestType = "captureWallet"
+        const extraData = ""; //pass empty value if your merchant does not have stores
+
+        //before sign HMAC SHA256 with format
+        const rawSignature = "accessKey="+accessKey+"&amount=" + amount+ "&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
+        //signature
+        const crypto = require('crypto');
+        const signature = crypto.createHmac('sha256', secretkey)
+            .update(rawSignature)
+            .digest('hex');
+
+        //json object send to MoMo endpoint
+        const requestBody = JSON.stringify({
+            partnerCode : partnerCode,
+            accessKey : accessKey,
+            requestId : requestId,
+            amount : amount,
+            orderId : orderId,
+            orderInfo : orderInfo,
+            redirectUrl : redirectUrl,
+            ipnUrl : ipnUrl,
+            extraData : extraData,
+            requestType : requestType,
+            signature : signature,
+            lang: 'en',
+            url:url
+        });
+        //Create the HTTPS objects
+        const https = require('https');
+        const options = {
+            hostname: 'test-payment.momo.vn',
+            port: 443,
+            path: '/v2/gateway/api/create',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(requestBody)
+            }
+        }
+        //Send the request and get the response
+        const req2 = https.request(options, res2 => {
+            
+            res2.setEncoding('utf8');
+            res2.on('data', (body) => {
+                // gửi về client
+                res.send(JSON.parse(body).payUrl)
+
+            });
+        })
+
+        req2.on('error', (e) => {
+            console.log(`problem with request: ${e.message}`);
+        });
+        // write data to request body
+        req2.write(requestBody);
+        req2.end();
+    }
+
+    async returnMomo (req, res){
+        try {
+            if(req.query.resultCode == 0){
+                const rental=await rentalService.findById(req.query.id)
+                if(rental.payInFull && rental.totalAmount == req.query.amount){
+                    await rentalService.update(req.query.id,{isPayment:'Đã thanh toán',paymentMethod:'MOMO', pricePayed:rental.totalAmount})
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+                }
+                else{
+                    if(rental.pricePayed>0){
+                        rental.datePay.setMonth(rental.datePay.getMonth()+1)
+                    }
+                    await rentalService.update(req.query.id,{isPayment:'Thanh toán theo tháng',paymentMethod:'MOMO', datePay:rental.datePay, payInFull:false})
+                    await rentalService.update2(req.query.id,rental.priceMonth)
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+                }
+            }
+            else{
+                await rentalService.update(req.query.id,{isPayment:'Chưa thanh toán',paymentMethod:'MOMO'})
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        
+    }
+    async updateByCOD(req, res){
+        try {
+            const rental=await rentalService.findById(req.query.id)
+            
+            if(rental.payInFull){
+                await rentalService.update(req.query.id,{isPayment:'Thanh toán toàn bộ',paymentMethod:'COD', datePay:rental.endDate, pricePayed:rental.totalAmount})
+            }
+            else{
+                if(rental.pricePayed>0){
+                    rental.datePay.setMonth(rental.datePay.getMonth()+1)
+                }
+                await rentalService.update(req.query.id,{isPayment:'Thanh toán theo tháng',paymentMethod:'COD', datePay:rental.datePay})
+                await rentalService.update2(req.query.id,rental.priceMonth)
+            }
+            res.json({mes:'Thanh toán thành công',status:true})
+        } catch (error) {
+            console.log(error);
+        }
+    }
     
 }
 

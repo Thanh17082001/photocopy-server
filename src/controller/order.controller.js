@@ -118,7 +118,6 @@ class orderController{
     }
     async vnpayPayment(req, res){
         const url = req.query.url
-        req.session.url=url
         const ipAddr = req.headers['x-forwarded-for'] ||
                 req.connection.remoteAddress ||
                 req.socket.remoteAddress ||
@@ -127,7 +126,7 @@ class orderController{
         let tmnCode = 'M0UIOUJQ';
         let secretKey ='QAHUEZEOIRUDZATPCTITIGLAKLKOHGHL';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-        let returnUrl = 'http://localhost:3000/order/payment'
+        let returnUrl = `http://localhost:3000/order/payment/?url=${url}`
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
         let orderId = req.body.orderId;
@@ -178,16 +177,12 @@ class orderController{
         let hmac = crypto.createHmac("sha512", secretKey);
         let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
         if(vnp_Params['vnp_ResponseCode'] == '00') {
-            await orderService.update(vnp_Params['vnp_TxnRef'],{isPayment:true,paymentMethod:'Online'})
-            if(secureHash === signed){
-                return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)
-                
-            } else{
-                return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
-            }
+            const order = await orderService.findById(vnp_Params['vnp_TxnRef'])
+            await orderService.update(vnp_Params['vnp_TxnRef'],{isPayment:true,paymentMethod:'VNPAY', pricePayed: order.totalAmount})
+            return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)    
         }
         else{
-            return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
+            return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
         }
         
     }
@@ -211,21 +206,22 @@ class orderController{
     
 
     async paymetnWithMoMO(req, res){
+        const url = req.query.url
         //parameters
         const partnerCode = "MOMO";
         const accessKey = "F8BBA842ECF85";
         const secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-        const requestId = partnerCode + new Date().getTime();
+        const requestId = req.body.orderId +new Date().getTime();
         const orderId = requestId;
-        const orderInfo = "pay with MoMo";
-        const redirectUrl = "http://localhost:3000/order/pay-momo-return";
-        const ipnUrl = "http://localhost:3000/order/pay-momo-return";
-        const amount = "50000";
+        const orderInfo = "Thanh toán đơn hàng";
+        const redirectUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
+        const ipnUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
+        const amount = req.body.totalAmount? req.body.totalAmount : 0;
         const requestType = "captureWallet"
         const extraData = ""; //pass empty value if your merchant does not have stores
 
         //before sign HMAC SHA256 with format
-        const rawSignature = "accessKey="+accessKey+"&amount=" + amount+"&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
+        const rawSignature = "accessKey="+accessKey+"&amount=" + amount+ "&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
         //signature
         const crypto = require('crypto');
         const signature = crypto.createHmac('sha256', secretkey)
@@ -245,7 +241,8 @@ class orderController{
             extraData : extraData,
             requestType : requestType,
             signature : signature,
-            lang: 'en'
+            lang: 'en',
+            url:url
         });
         //Create the HTTPS objects
         const https = require('https');
@@ -260,13 +257,14 @@ class orderController{
             }
         }
         //Send the request and get the response
-        const req2 = https.request(options, res => {
+        const req2 = https.request(options, res2 => {
             
-            res.setEncoding('utf8');
-            res.on('data', (body) => {
+            res2.setEncoding('utf8');
+            res2.on('data', (body) => {
                 // gửi về client
-                console.log('payUrl: ');
+                res.send(JSON.parse(body).payUrl)
                 console.log(JSON.parse(body).payUrl);
+
             });
         })
 
@@ -274,14 +272,23 @@ class orderController{
             console.log(`problem with request: ${e.message}`);
         });
         // write data to request body
-        console.log("Sending....")
         req2.write(requestBody);
         req2.end();
     }
 
-    returnMomo (req, res){
-        // lưu vào đb
-        console.log(req.query);
+    async returnMomo (req, res){
+        try {
+            if(req.query.resultCode == 0){
+                await orderService.update(req.query.id,{isPayment:true,paymentMethod:'MOMO', pricePayed:req.query.amount})
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+            }
+            else{
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        
     }
 
     

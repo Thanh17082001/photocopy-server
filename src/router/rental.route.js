@@ -8,6 +8,9 @@ router.get('/find',rentalController.getById) // ?id=
 router.post('/update',rentalController.update) //?id
 router.post('/create_payment_url', rentalController.vnpayPayment);
 router.get('/payment',rentalController.paymentReturn)
+router.post('/pay-momo', rentalController.paymetnWithMoMO)
+router.get('/pay-momo-return', rentalController.returnMomo)
+router.get('/update-cod', rentalController.updateByCOD)
 router.get('/filter-date',rentalController.filterByFullDate)
 router.get('/',rentalController.getAll)
 

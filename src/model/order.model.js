@@ -33,6 +33,10 @@ const orderSchema = new Schema({
     ],
     totalCostOfProducts:Number,
     totalAmount:Number,
+    pricePayed:{
+        type:Number,
+        default:0
+    },
     IsOnlineOrder:{
         type:Boolean,
         default:false

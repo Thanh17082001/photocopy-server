@@ -36,6 +36,12 @@ const rentalSchema = new Schema({
     },
     endDate:Date,
     quantityMonth:Number,
+    priceMonth:Number,
+    pricePayed:{
+        type:Number,
+        default:0
+    },
+    datePay:Date,
     totalAmount:Number,
     status:{
         type:String,
@@ -47,17 +53,17 @@ const rentalSchema = new Schema({
         default:'COD',
     },
     isPayment:{
+        type:String,
+        default:'Chưa thanh toán',
+        enum:['Chưa thanh toán','Thanh toán theo tháng','Đã thanh toán']
+    },
+    payInFull:{
         type:Boolean,
-        default:false
     },
     note:{
         type:String,
         default:''
     },
-    transportFee:{
-        type:Number,
-        default:0
-    }
 }, {timestamps:true})
 
 export default mongoose.model('rental', rentalSchema)
