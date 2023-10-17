@@ -17,6 +17,7 @@ import rentalRoute from './rental.route'
 import newsRoute from './news.route'
 import serviceRoute from './service.route'
 import taskRoute from './task.route'
+import warrantyRoute from './warranty.route'
 
 const routers = (app) => {
     app.use('/user', userRoute);
@@ -38,6 +39,7 @@ const routers = (app) => {
     app.use('/news', newsRoute)
     app.use('/service', serviceRoute)
     app.use('/task', taskRoute)
+    app.use('/warranty', warrantyRoute)
     app.use('/', (req, res) => {
         res.send('Hom page');
     })

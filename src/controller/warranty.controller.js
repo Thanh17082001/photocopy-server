@@ -1,9 +1,7 @@
-import orderService from "../service/order.service";
-import deepEqual from "deep-equal";
+import warrantyService from "../service/warranty.service";
 import moment from "moment/moment";
-import productService from "../service/product.service";
 import accessoryService from "../service/accessory.service";
-class orderController{
+class warrantyController{
     constructor() {
         this.vnpayPayment = this.vnpayPayment.bind(this);
         this.paymentReturn = this.paymentReturn.bind(this);
@@ -15,17 +13,11 @@ class orderController{
                     const data={
                         ...req.body,
                     }
-                     const result=await orderService.create(data)
+                     const result=await warrantyService.create(data)
                      if(!!result){
-                         const products = req.body.products
-                         products.forEach(async (product) =>{
-                            if(product.typeProduct =='product'){
-                                await productService.updateAfterOrder(product.productId,{quantity:Number(product.quantity)})
-                            }
-                            else{
-                                await accessoryService.updateAfterOrder(product.productId,{quantity:product.quantity})
-
-                            }
+                         const accessorys = req.body.accessorys
+                         accessorys.forEach(async (product) =>{
+                            await accessoryService.updateAfterOrder(product.productId,{quantity:product.quantity})
                          })
                          res.json({mes:'Thêm đon hàng thành công',status:true, data: result});
                      }
@@ -47,7 +39,7 @@ class orderController{
         try {
             const {pageNumber=undefined} = req.query
             const {pageSize=undefined} = req.query
-            const result = await orderService.find({},pageNumber,pageSize)
+            const result = await warrantyService.find({},pageNumber,pageSize)
             res.json(result)
         } catch (error) {
             console.log(error);
@@ -59,13 +51,14 @@ class orderController{
         try {
             const {id=undefined} = req.query
             if(!!id){
-                const result = await orderService.findById(id);
+                const result = await warrantyService.findById(id)
                 res.json(result)
             }
             else{
                 res.json({mes:'Truyền id query'})
             }
         } catch (error) {
+            console.log(error);
             res.status(500).json({error})
         }
     }
@@ -78,17 +71,17 @@ class orderController{
                         ...req.body
                     }
                     if(data.status=='Hủy đơn' ){
-                        const rental= await orderService.findById(id)
+                        const rental= await warrantyService.findById(id)
                         if( rental.status=='Đang vận chuyển' || rental.status=='Đã giao hàng' || rental.status=='Đang sử dụng'){
                             res.json({mes:'Không thể hủy đơn',status:false})
                         }
                         else{
-                            const result = await orderService.update(id, {status:data.status})
+                            const result = await warrantyService.update(id, {status:data.status})
                             return res.json({mes:'Cập nhật thành công', status:true, data:result})
                         }
     
                     }
-                    const result = await orderService.update(id, data)
+                    const result = await warrantyService.update(id, data)
                     res.json({mes:'Cập nhật thành công', status:true, data:result})
             }
             else{
@@ -125,12 +118,12 @@ class orderController{
         let tmnCode = 'M0UIOUJQ';
         let secretKey ='QAHUEZEOIRUDZATPCTITIGLAKLKOHGHL';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-        let returnUrl = `http://localhost:3000/order/payment/?url=${url}`
+        let returnUrl = `http://localhost:3000/warranty/payment/?url=${url}`
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
         let orderId = req.body.orderId;
         let amount = req.body.totalAmount || 0; // thêm tiền ở đây
-        let orderInfo = req.body.orderDescription || 'Thanh toán hóa đơn mua hàng';
+        let orderInfo = req.body.orderDescription || 'Thanh toán hóa đơn';
         let orderType = req.body.orderType || 'billpayment';
         let currCode = 'VND';
         let vnp_Params = {};
@@ -176,11 +169,12 @@ class orderController{
         let hmac = crypto.createHmac("sha512", secretKey);
         let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
         if(vnp_Params['vnp_ResponseCode'] == '00') {
-            const order = await orderService.findById(vnp_Params['vnp_TxnRef'])
-            await orderService.update(vnp_Params['vnp_TxnRef'],{isPayment:true,paymentMethod:'VNPAY', pricePayed: order.totalAmount})
+            const order = await warrantyService.findById(vnp_Params['vnp_TxnRef'])
+            await warrantyService.update(vnp_Params['vnp_TxnRef'],{isPayment:true,paymentMethod:'VNPAY', pricePayed: order.totalAmount, warrantyExpires:true})
             return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)    
         }
         else{
+            await warrantyService.update(vnp_Params['vnp_TxnRef'],{isPayment:true,paymentMethod:'VNPAY', pricePayed: order.totalAmount, warrantyExpires:true})
             return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
         }
         
@@ -194,7 +188,7 @@ class orderController{
             const {field}= req.query
             const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
             const pageSize = req.query.pageSize ? req.query.pageSize : {}
-            const result = await orderService.findByDate(day,month,year,field,pageNumber,pageSize)
+            const result = await warrantyService.findByDate(day,month,year,field,pageNumber,pageSize)
             res.json(result);
             
             
@@ -213,8 +207,8 @@ class orderController{
         const requestId = req.body.orderId +new Date().getTime();
         const orderId = requestId;
         const orderInfo = "Thanh toán đơn hàng";
-        const redirectUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
-        const ipnUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
+        const redirectUrl = `http://localhost:3000/warranty/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
+        const ipnUrl = `http://localhost:3000/warranty/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
         const amount = req.body.totalAmount? req.body.totalAmount : 0;
         const requestType = "captureWallet"
         const extraData = ""; //pass empty value if your merchant does not have stores
@@ -262,7 +256,6 @@ class orderController{
             res2.on('data', (body) => {
                 // gửi về client
                 res.send(JSON.parse(body).payUrl)
-                console.log(JSON.parse(body).payUrl);
 
             });
         })
@@ -278,10 +271,11 @@ class orderController{
     async returnMomo (req, res){
         try {
             if(req.query.resultCode == 0){
-                await orderService.update(req.query.id,{isPayment:true,paymentMethod:'MOMO', pricePayed:req.query.amount})
+                await warrantyService.update(req.query.id,{isPayment:true,paymentMethod:'MOMO', pricePayed:req.query.amount, warrantyExpires:true})
                 return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
             }
             else{
+                await warrantyService.update(req.query.id,{isPayment:false,paymentMethod:'MOMO', pricePayed:0, warrantyExpires:true})
                 return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
             }
         } catch (error) {
@@ -293,4 +287,4 @@ class orderController{
     
 }
 
-export default new orderController()
+export default new warrantyController()

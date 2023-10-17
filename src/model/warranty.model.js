@@ -12,64 +12,51 @@ const orderSchema = new Schema({
         ref:'customer',
         default:null
     },
+    productId:{
+        type:Schema.Types.ObjectId,
+        ref:'product'
+    },
     phone:String,
     nameCustomer:String,
     address:String,
-    products:[
+    accessorys:[
         {
-            productId: {
+            accessoryId: {
                 type:Schema.Types.ObjectId,
-                refPath:'products.typeProduct',
+                ref:'accessory',
             },
             nameProduct:String,
             priceSale:Number,
-            warrantyTime:{
-                type:Number,
-                default:null
-            },
-            typeProduct:{
-                type:String,
-                default:'product',
-                enum:['product','accessory']
-            },
             quantity:Number,
         }
     ],
-    totalCostOfProducts:Number,
     totalAmount:Number,
     pricePayed:{
         type:Number,
         default:0
     },
-    IsOnlineOrder:{
+    warrantyExpires:{ // hết hạn bảo hành
         type:Boolean,
         default:false
     },
+    Datedealine:Date,
     status:{
         type:String,
         default:'Đang xử lý',
-        enum:['Đang xử lý', 'Đang vận chuyển', 'Đã giao hàng','Hủy đơn']
+        enum:['Đang xử lý', 'Hoàn thành']
     },
     paymentMethod:{
         type:String,
-        default:'COD',
+        default:null,
     },
     isPayment:{
         type:Boolean,
-        default:false
+        default:null
     },
     note:{
         type:String,
         default:''
     },
-    VAT:{
-        type:Number,
-        default:0
-    },
-    transportFee:{
-        type:Number,
-        default:0
-    }
 },{timestamps:true})
 
-export default mongoose.model('order', orderSchema)
+export default mongoose.model('warranty', orderSchema)
