@@ -1,5 +1,5 @@
 import orderModel from '../model/order.model'
-
+import mongoose from 'mongoose';
 class orderSerVice{
     async create(data){
         return await orderModel.create(data)
@@ -23,11 +23,16 @@ class orderSerVice{
     }
 
     async findById(id){
+      if(mongoose.Types.ObjectId.isValid(id)){
         return await orderModel
         .findById(id)
         .populate('products.productId', ['name'])
         .populate('createBy',['fullName','phoneNumber'])
         .populate('customerId')
+      }
+      else{
+        return {};
+      }
     }
 
     // loc theo ngay thang nam
@@ -56,6 +61,59 @@ class orderSerVice{
         else {
             return await orderModel.find(condition).sort({ createdAt: -1 });
         }
+    }
+
+    async revenueYear(startDate, endDate){
+        const result = await orderModel.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: startDate, $lte: endDate }
+              }
+            },
+            {
+              $group: {
+                _id: { $month: '$createdAt' },
+                totalRevenue: { $sum: '$pricePayed' }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                month: '$_id',
+                totalRevenue: 1
+              }
+            },
+            {
+              $sort: { month: 1 }
+            }
+          ]);
+        return result
+    }
+    async revenueMonth(firstDayOfMonth, lastDayOfMonth){
+        const result = await orderModel.aggregate([
+            {
+                $match: {
+                  createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+                }
+              },
+              {
+                $group: {
+                  _id: { $dayOfMonth: '$createdAt' },
+                  totalRevenue: { $sum: '$pricePayed' }
+                }
+              },
+              {
+                $project: {
+                  day: '$_id',
+                  totalRevenue: 1,
+                  _id: 0
+                }
+              },
+              {
+                $sort: { day: 1 }
+              }
+          ]);
+        return result
     }
 }
 

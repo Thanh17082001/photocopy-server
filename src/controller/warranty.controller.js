@@ -17,7 +17,7 @@ class warrantyController{
                      if(!!result){
                          const accessorys = req.body.accessorys
                          accessorys.forEach(async (product) =>{
-                            await accessoryService.updateAfterOrder(product.productId,{quantity:product.quantity})
+                            await accessoryService.updateAfterOrder(product.accessoryId,{quantity:product.quantity})
                          })
                          res.json({mes:'Thêm đon hàng thành công',status:true, data: result});
                      }

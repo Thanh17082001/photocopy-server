@@ -1,5 +1,7 @@
+import { response } from "express";
 import taskService from "../service/task.service";
 import deepEqual from "deep-equal";
+import accessoryService from "../service/accessory.service";
 class taskController{
     async create(req, res) {
         try {
@@ -7,7 +9,7 @@ class taskController{
                 ...req.body,
             }
             const result = await taskService.create(data)
-            !!result ? res.json({mes:'Thêm công việc thành công', status:true}): res.json({mes:'Thêm không thành công', status:false})
+            !!result ? res.json({mes:'Thêm công việc thành công', status:true,result}): res.json({mes:'Thêm không thành công', status:false})
         } catch (error) {
             console.log(error);
             res.status(500).json({error})
@@ -52,6 +54,7 @@ class taskController{
                     nameCustomer:task.nameCustomer,
                     phone:task.phone,
                     address:task.address,
+                    note:task.note
                 }
                 const taskNew= {
                     serviceId:req.body.serviceId,
@@ -60,6 +63,7 @@ class taskController{
                     nameCustomer:req.body.nameCustomer,
                     phone:req.body.phone,
                     address:req.body.address,
+                    note:req.body.note
                 }
                 console.log(tasksOld);
                 console.log(taskNew);
@@ -128,6 +132,29 @@ class taskController{
             }
             else{
                 res.json({mes:'Chưa truyền tham số id',status:false})
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async report(req, res){
+        try {
+            const data = req.body
+            const {id=undefined} = req.query
+            data.image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : '';
+            if(!!data && !!id){
+                const update = await taskService.update(id,data)
+                if(!!update){
+                    const accessorys = data.accessorys
+                         accessorys.forEach(async (product) =>{
+                            await accessoryService.updateAfterOrder(product.accessoryId,{quantity:product.quantity})
+                         })
+                    res.json({mes:'Báo cáo thành công',status:true,result:update})
+                }
+                else{
+                    res.json({mes:'Không thành công',status:false})
+                }
             }
         } catch (error) {
             console.log(error);

@@ -59,6 +59,59 @@ class taskService{
     async delete(id){
         return taskModel.findByIdAndDelete(id)
     }
+
+    async revenueYear(startDate, endDate){
+        const result = await taskModel.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: startDate, $lte: endDate }
+              }
+            },
+            {
+              $group: {
+                _id: { $month: '$createdAt' },
+                totalRevenue: { $sum: '$pricePayed' }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                month: '$_id',
+                totalRevenue: 1
+              }
+            },
+            {
+              $sort: { month: 1 }
+            }
+          ]);
+        return result
+    }
+    async revenueMonth(firstDayOfMonth, lastDayOfMonth){
+        const result = await taskModel.aggregate([
+            {
+                $match: {
+                  createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+                }
+              },
+              {
+                $group: {
+                  _id: { $dayOfMonth: '$createdAt' },
+                  totalRevenue: { $sum: '$pricePayed' }
+                }
+              },
+              {
+                $project: {
+                  day: '$_id',
+                  totalRevenue: 1,
+                  _id: 0
+                }
+              },
+              {
+                $sort: { day: 1 }
+              }
+          ]);
+        return result
+    }
 }
 
 export default new taskService()
