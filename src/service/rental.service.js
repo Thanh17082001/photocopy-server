@@ -124,6 +124,60 @@ class rentalService{
           ]);
         return result
     }
+
+    async expenseYear(startDate, endDate){
+      const result = await rentalModel.aggregate([
+          {
+            $match: {
+              createdAt: { $gte: startDate, $lte: endDate }
+            }
+          },
+          {
+            $group: {
+              _id: { $month: '$createdAt' },
+              totalRevenue: { $sum: '$totalAmount' }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              month: '$_id',
+              totalRevenue: 1
+            }
+          },
+          {
+            $sort: { month: 1 }
+          }
+        ]);
+        console.log(result);
+      return result
+  }
+  async expenseMonth(firstDayOfMonth, lastDayOfMonth){
+      const result = await rentalModel.aggregate([
+          {
+              $match: {
+                createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+              }
+            },
+            {
+              $group: {
+                _id: { $dayOfMonth: '$createdAt' },
+                totalRevenue: { $sum: '$totalAmount' }
+              }
+            },
+            {
+              $project: {
+                day: '$_id',
+                totalRevenue: 1,
+                _id: 0
+              }
+            },
+            {
+              $sort: { day: 1 }
+            }
+        ]);
+      return result
+  }
     
 }
 

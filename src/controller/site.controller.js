@@ -34,6 +34,7 @@ const calculateTotalRevenueMonth = (arr1, arr2) => {
       totalRevenue: item.totalRevenue + arr2[index].totalRevenue
     }));
 };
+
 class siteController{
     // tổng doanh thu
     async revenueYear(req, res){
@@ -45,11 +46,14 @@ class siteController{
             let order = await orderService.revenueYear(startDate,endDate)
             let rental = await rentalService.revenueYear(startDate,endDate)
             let warranty = await warrantyService.revenueYear(startDate,endDate)
+            let task = await taskService.revenueYear(startDate,endDate)
             const resultOrder=covertArrayYear(order)
             const resultRental=covertArrayYear(rental)
             const resultWarranty=covertArrayYear(warranty)
+            const resulttask=covertArrayYear(task)
             const a = calculateTotalRevenueYear(resultOrder, resultRental)
-            const result = calculateTotalRevenueYear(a, resultWarranty)
+            const b = calculateTotalRevenueYear(resulttask, resultWarranty)
+            const result = calculateTotalRevenueYear(a, b)
             res.json(result)
         } catch (error) {
             res.status(500).json(error)
@@ -66,14 +70,65 @@ class siteController{
             let order = await orderService.revenueMonth(firstDayOfMonth,lastDayOfMonth)
             let rental = await rentalService.revenueMonth(firstDayOfMonth,lastDayOfMonth)
             let warranty = await warrantyService.revenueMonth(firstDayOfMonth,lastDayOfMonth)
+            let task = await taskService.revenueMonth(firstDayOfMonth,lastDayOfMonth)
             const allDaysInMonth = Array.from({ length: lastDayOfMonth.getDate() }, (_, i) => i + 1);
             const resultOrder = covertArrayMonth(order,allDaysInMonth)
             const resultRental = covertArrayMonth(rental,allDaysInMonth)
             const resultWarranty = covertArrayMonth(warranty,allDaysInMonth)
+            const resultTask = covertArrayMonth(task,allDaysInMonth)
             const a =calculateTotalRevenueMonth(resultOrder, resultRental)
-            const result =calculateTotalRevenueMonth(resultWarranty, a)
+            const b =calculateTotalRevenueMonth(resultWarranty, resultTask)
+            const result =calculateTotalRevenueMonth(a, b)
             res.json(result)
         } catch (error) {
+            res.status(500).json(error)
+        }
+    }
+
+    async expenseYear(req, res){
+        try {
+            const year = req.query?.year || new Date().getFullYear()
+            const startDate = new Date(`${year}-01-01T00:00:00Z`);
+            const endDate = new Date(`${year}-12-31T23:59:59Z`);
+            let order = await orderService.expenseYear(startDate,endDate)
+            let rental = await rentalService.expenseYear(startDate,endDate)
+            let warranty = await warrantyService.expenseYear(startDate,endDate)
+            let task = await taskService.expenseYear(startDate,endDate)
+            const resultOrder=covertArrayYear(order)
+            const resultRental=covertArrayYear(rental)
+            const resultWarranty=covertArrayYear(warranty)
+            const resulttask=covertArrayYear(task)
+            const a = calculateTotalRevenueYear(resultOrder, resultRental)
+            const b = calculateTotalRevenueYear(resulttask, resultWarranty)
+            const result = calculateTotalRevenueYear(a, b)
+            res.json(result)
+        } catch (error) {
+            console.log(error);
+            res.status(500).json(error)
+        }
+    }
+
+    async expenseMonth(req, res){
+        try {
+            const year = req.query?.year || new Date().getFullYear()
+            const month = req.query?.month || new Date().getMonth()+1
+            const firstDayOfMonth = new Date(year, month - 1, 1);
+            const lastDayOfMonth = new Date(year, month, 0, 23, 59, 59);
+            let order = await orderService.expenseMonth(firstDayOfMonth,lastDayOfMonth)
+            let rental = await rentalService.expenseMonth(firstDayOfMonth,lastDayOfMonth)
+            let warranty = await warrantyService.expenseMonth(firstDayOfMonth,lastDayOfMonth)
+            let task = await taskService.expenseMonth(firstDayOfMonth,lastDayOfMonth)
+            const allDaysInMonth = Array.from({ length: lastDayOfMonth.getDate() }, (_, i) => i + 1);
+            const resultOrder = covertArrayMonth(order,allDaysInMonth)
+            const resultRental = covertArrayMonth(rental,allDaysInMonth)
+            const resultWarranty = covertArrayMonth(warranty,allDaysInMonth)
+            const resultTask = covertArrayMonth(task,allDaysInMonth)
+            const a =calculateTotalRevenueMonth(resultOrder, resultRental)
+            const b =calculateTotalRevenueMonth(resultWarranty, resultTask)
+            const result =calculateTotalRevenueMonth(a, b)
+            res.json(result)
+        } catch (error) {
+            console.log(error);
             res.status(500).json(error)
         }
     }

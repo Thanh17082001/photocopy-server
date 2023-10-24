@@ -64,13 +64,13 @@ class taskService{
         const result = await taskModel.aggregate([
             {
               $match: {
-                createdAt: { $gte: startDate, $lte: endDate }
+                startDate: { $gte: startDate, $lte: endDate }
               }
             },
             {
               $group: {
-                _id: { $month: '$createdAt' },
-                totalRevenue: { $sum: '$pricePayed' }
+                _id: { $month: '$startDate' },
+                totalRevenue: { $sum: '$totalAmount' }
               }
             },
             {
@@ -90,13 +90,13 @@ class taskService{
         const result = await taskModel.aggregate([
             {
                 $match: {
-                  createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+                  startDate: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
                 }
               },
               {
                 $group: {
-                  _id: { $dayOfMonth: '$createdAt' },
-                  totalRevenue: { $sum: '$pricePayed' }
+                  _id: { $dayOfMonth: '$startDate' },
+                  totalRevenue: { $sum: '$totalAmount' }
                 }
               },
               {
@@ -112,6 +112,60 @@ class taskService{
           ]);
         return result
     }
+
+    async expenseYear(startDate, endDate){
+      const result = await taskModel.aggregate([
+          {
+            $match: {
+              startDate: { $gte: startDate, $lte: endDate }
+            }
+          },
+          {
+            $group: {
+              _id: { $month: '$startDate' },
+              totalRevenue: { $sum: '$totalAmount' }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              month: '$_id',
+              totalRevenue: 1
+            }
+          },
+          {
+            $sort: { month: 1 }
+          }
+        ]);
+      return result
+  }
+  async expenseMonth(firstDayOfMonth, lastDayOfMonth){
+      const result = await taskModel.aggregate([
+          {
+              $match: {
+                startDate: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+              }
+            },
+            {
+              $group: {
+                _id: { $dayOfMonth: '$startDate' },
+                totalRevenue: { $sum: '$totalAmount' }
+              }
+            },
+            {
+              $project: {
+                day: '$_id',
+                totalRevenue: 1,
+                _id: 0
+              }
+            },
+            {
+              $sort: { day: 1 }
+            }
+        ]);
+      return result
+  }
+    
 }
 
 export default new taskService()
