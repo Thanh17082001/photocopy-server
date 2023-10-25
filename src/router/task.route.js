@@ -6,6 +6,7 @@ router.post('/create',taskController.create )
 router.post('/update',taskController.update )
 router.post('/report',upload('tasks').single('image'),taskController.report )
 router.post('/update-status',taskController.updateStatus)
+router.post('/change-time',taskController.changeTime) // id=
 router.get('/find',taskController.getById)
 router.get('/delete',taskController.delete) // id=
 router.get('/filter-date',taskController.filterByFullDate)

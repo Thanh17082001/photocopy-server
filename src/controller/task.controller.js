@@ -65,8 +65,6 @@ class taskController{
                     address:req.body.address,
                     note:req.body.note
                 }
-                console.log(tasksOld);
-                console.log(taskNew);
                 const isEqual = deepEqual(tasksOld, taskNew)
                 if(isEqual || !!!req.body){
                     res.json({ mes: 'Chưa chỉnh sửa dữ liệu', status: false });
@@ -154,6 +152,25 @@ class taskController{
                 }
                 else{
                     res.json({mes:'Không thành công',status:false})
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async changeTime(req, res){
+        try {
+            const data = req.body
+            const {id=undefined}=req.query
+            if(!!data || !!id){
+                const result = await taskService.update(id, data)
+                if(!!result){
+                    res.json({mes:'Thành công',status:true})
+                }
+                else{
+                    res.json({mes:'Không thành công',status:false})
+
                 }
             }
         } catch (error) {

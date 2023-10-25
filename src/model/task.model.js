@@ -46,11 +46,7 @@ const taskSchema = new Schema({
         enum:['Hoàn thành', 'Đang tiến hành', 'Chưa bắt đầu', 'Đã báo cáo'],
         default:'Chưa bắt đầu'
     },
-    paymentMethod:{
-        type:String,
-        default:null,
-    },
-    isPayment:{
+    allDay:{
         type:Boolean,
         default:false
     },
