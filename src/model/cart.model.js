@@ -1,4 +1,4 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const cartScheme = new Schema({
@@ -8,11 +8,16 @@ const cartScheme = new Schema({
     },
     products:[
         {
-            productId:{
+            id:{
                 type:Schema.Types.ObjectId,
-                ref:'product'
+                refPath:'products.typeProduct',
             },
-            quantity: Number,
+            typeProduct:{
+                type:String,
+                default:'product',
+                enum:['product','accessory']
+            },
+            quantityCart: Number,
         }
     ],
     

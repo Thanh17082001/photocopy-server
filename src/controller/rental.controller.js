@@ -155,10 +155,10 @@ class rentalController{
         let tmnCode = 'M0UIOUJQ';
         let secretKey ='QAHUEZEOIRUDZATPCTITIGLAKLKOHGHL';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-        let returnUrl = 'http://localhost:3000/rental/payment'
+        let returnUrl = `http://localhost:3000/rental/payment/?url=${url}&id=${req.body.orderId}`
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
-        let orderId = req.body.orderId;
+        let orderId = req.body.orderId +new Date().getTime();
         let amount = req.body.totalAmount || 0; // thêm tiền ở đây
         let orderInfo = req.body.orderDescription || 'Thanh toán hóa đơn mua hàng';
         let orderType = req.body.orderType || 'billpayment';
@@ -190,6 +190,7 @@ class rentalController{
     }
 
     async paymentReturn(req, res){
+
         let vnp_Params = req.query;
         let secureHash = vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHash'];
@@ -204,24 +205,40 @@ class rentalController{
         let hmac = crypto.createHmac("sha512", secretKey);
         let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
         if(vnp_Params['vnp_ResponseCode'] == '00') {
-            const rental=await rentalService.findById(vnp_Params['vnp_TxnRef'])
+            const rental=await rentalService.findById(req.query.id)
             console.log(vnp_Params['vnp_Amount']);
-            if(rental.payInFull && rental.totalAmount == vnp_Params['vnp_Amount']/100){
-                await rentalService.update(vnp_Params['vnp_TxnRef'],{isPayment:'Đã thanh toán',paymentMethod:'VNPAY', pricePayed:rental.totalAmount})
-                return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)
+            if(rental.payInFull || rental.totalAmount <= vnp_Params['vnp_Amount']/100 + rental.pricePayed){
+                await rentalService.update(req.query.id,{isPayment:'Đã thanh toán',paymentMethod:'VNPAY', pricePayed:rental.totalAmount})
+                if(req.query.url.indexOf('?') !=='?'){
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
+                }
+                else{
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+                }
             }
             else{
-                if(rental.pricePayed>0){
+                if(vnp_Params['vnp_Amount']/100>0){
                     rental.datePay.setMonth(rental.datePay.getMonth()+1)
                 }
-                await rentalService.update(vnp_Params['vnp_TxnRef'],{isPayment:'Thanh toán theo tháng',paymentMethod:'VNPAY', datePay:rental.datePay, payInFull:false})
-                await rentalService.update2(vnp_Params['vnp_TxnRef'],rental.priceMonth)
-                return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)
+                await rentalService.update(req.query.id,{isPayment:'Thanh toán theo tháng',paymentMethod:'VNPAY', datePay:rental.datePay, payInFull:false})
+                await rentalService.update2(req.query.id,vnp_Params['vnp_Amount']/100)
+                if(req.query.url.indexOf('?') !=='?'){
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
+                }
+                else{
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+                }
             }
         }
         else{
-            await rentalService.update(vnp_Params['vnp_TxnRef'],{isPayment:'Chưa thanh toán',paymentMethod:'VNPAY'})
-            return res.redirect(`http://localhost:3001/${req.session.url ? req.session.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
+            await rentalService.update(req.query.id,{isPayment:'Chưa thanh toán',paymentMethod:'VNPAY'})
+            if(req.query.url.indexOf('?') !=='?'){
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
+            }
+            else{
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+
+            }
         }
         
     }
@@ -300,25 +317,45 @@ class rentalController{
     }
 
     async returnMomo (req, res){
+        console.log('aaaa');
         try {
             if(req.query.resultCode == 0){
                 const rental=await rentalService.findById(req.query.id)
                 if(rental.payInFull && rental.totalAmount == req.query.amount){
                     await rentalService.update(req.query.id,{isPayment:'Đã thanh toán',paymentMethod:'MOMO', pricePayed:rental.totalAmount})
-                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+                    if(req.query.url.indexOf('?') !=='?'){
+                        return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
+                    }
+                    else{
+                        return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+
+                    }
                 }
                 else{
-                    if(rental.pricePayed>0){
+                    if(req.query.amount>0){
                         rental.datePay.setMonth(rental.datePay.getMonth()+1)
                     }
                     await rentalService.update(req.query.id,{isPayment:'Thanh toán theo tháng',paymentMethod:'MOMO', datePay:rental.datePay, payInFull:false})
-                    await rentalService.update2(req.query.id,rental.priceMonth)
-                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+                    await rentalService.update2(req.query.id,req.query.amount)
+                    if(req.query.url.indexOf('?') !=='?'){
+                        return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
+                    }
+                    else{
+                        return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+
+                    }
                 }
             }
             else{
                 await rentalService.update(req.query.id,{isPayment:'Chưa thanh toán',paymentMethod:'MOMO'})
-                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+                if(req.query.url.indexOf('?') !=='?'){
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
+                }
+                else{
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+
+                }
+                
             }
         } catch (error) {
             console.log(error);
@@ -340,6 +377,22 @@ class rentalController{
                 await rentalService.update2(req.query.id,rental.priceMonth)
             }
             res.json({mes:'Thanh toán thành công',status:true})
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    async searchOrder(req, res){
+        try {
+            const condition = {...req.body}
+            const {pageNumber=undefined} = req.query
+            const {pageSize=undefined} = req.query
+            if(!!condition){
+                const result = await rentalService.find({...condition},pageNumber,pageSize)
+                res.json(result)
+            }
+            else{
+                res.json([])
+            }
         } catch (error) {
             console.log(error);
         }

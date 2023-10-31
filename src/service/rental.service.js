@@ -9,7 +9,7 @@ class rentalService{
         const skip = !!pageNumber && !!pageSize ? (pageNumber - 1) * pageSize : {};
         return await rentalModel
             .find(condition)
-            .populate('products.productId', ['name'])
+            .populate('products.productId')
             .populate('createBy',['fullName','phoneNumber'])
             .populate('customerId')
             .sort(sort)
@@ -35,7 +35,7 @@ class rentalService{
       if(mongoose.Types.ObjectId.isValid(id)){
         return await rentalModel
         .findById(id)
-        .populate('products.productId', ['name'])
+        .populate('products.productId')
         .populate('createBy',['fullName','phoneNumber'])
         .populate('customerId')
       }

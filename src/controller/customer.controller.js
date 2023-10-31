@@ -4,13 +4,13 @@ class customerController{
     async  create(req, res) {
         try {
             if(!!req.body){
-                const exit = await customerService.find({phone:req.body.phone, address:req.body.address, fullName:req.body.fullName})
+                const exit = await customerService.find({phone:req.body.phone, email:req.body.email, fullName:req.body.fullName})
                 if(exit.length >0){
-                    res.json({mes:'Khách hàng tồn tại',status:false})
+                    res.json({mes:'Khách hàng tồn tại',status:false, result:exit[0]})
                     return;
                 }
-                 await customerService.create(req.body)
-                 res.json({mes:'Thêm khách hàng thành công',status:true});
+                 const result =await customerService.create(req.body)
+                 res.json({mes:'Thêm khách hàng thành công',status:true, result});
             }
             else{
                 res.json({mes:'Thêm khách hàng không thành công',status:false})
@@ -58,11 +58,13 @@ class customerController{
                     fullName:customer.fullName,
                     address:customer.address,
                     phone:customer.phone,
+                    email:customer.email,
                 }
                 const newCustomer= {
                     fullName:req.body.fullName,
                     address:req.body.address,
                     phone:req.body.phone,
+                    email:req.body.email,
                 }
                 const equal = deepEqual(oldeCustomer, newCustomer)
     

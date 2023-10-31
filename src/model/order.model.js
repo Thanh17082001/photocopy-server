@@ -15,6 +15,7 @@ const orderSchema = new Schema({
     phone:String,
     nameCustomer:String,
     address:String,
+    email:String,
     products:[
         {
             productId: {

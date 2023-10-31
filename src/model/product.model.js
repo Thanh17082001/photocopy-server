@@ -47,7 +47,6 @@ const productSchema = new Schema({
     },
     dateEntyReceipt:Date,
     warrantyTime:Number
-    
 }, {timestamps:true})
 
 export default mongoose.model('product', productSchema)

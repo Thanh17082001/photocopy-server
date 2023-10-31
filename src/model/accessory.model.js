@@ -5,12 +5,10 @@ const accessorySchema = new Schema({
     idBrand:{
         type:Schema.Types.ObjectId,
         ref:'brand',
-        default:null
     },
     idType:{
         type:Schema.Types.ObjectId,
         ref:'type-accessory',
-        default:null
     },
     name:String,
     image:String,

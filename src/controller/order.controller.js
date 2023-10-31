@@ -125,10 +125,10 @@ class orderController{
         let tmnCode = 'M0UIOUJQ';
         let secretKey ='QAHUEZEOIRUDZATPCTITIGLAKLKOHGHL';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-        let returnUrl = `http://localhost:3000/order/payment/?url=${url}`
+        let returnUrl = `http://localhost:3000/order/payment/?url=${url}&id=${req.body.orderId}`
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
-        let orderId = req.body.orderId;
+        let orderId = req.body.orderId ;
         let amount = req.body.totalAmount || 0; // thêm tiền ở đây
         let orderInfo = req.body.orderDescription || 'Thanh toán hóa đơn mua hàng';
         let orderType = req.body.orderType || 'billpayment';
@@ -176,12 +176,23 @@ class orderController{
         let hmac = crypto.createHmac("sha512", secretKey);
         let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
         if(vnp_Params['vnp_ResponseCode'] == '00') {
-            const order = await orderService.findById(vnp_Params['vnp_TxnRef'])
-            await orderService.update(vnp_Params['vnp_TxnRef'],{isPayment:true,paymentMethod:'VNPAY', pricePayed: order.totalAmount})
-            return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${vnp_Params['vnp_TxnRef']}`)    
+            const order = await orderService.findById(req.query.id)
+            await orderService.update(req.query.id,{isPayment:true,paymentMethod:'VNPAY', pricePayed: order.totalAmount})
+            if(req.query.url.indexOf('?') !=='?'){
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
+            }
+            else{
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+            }    
         }
         else{
-            return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${vnp_Params['vnp_TxnRef']}`)
+            if(req.query.url.indexOf('?') !=='?'){
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
+            }
+            else{
+                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+            }
+            
         }
         
     }
@@ -212,13 +223,12 @@ class orderController{
         const secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
         const requestId = req.body.orderId +new Date().getTime();
         const orderId = requestId;
-        const orderInfo = "Thanh toán đơn hàng";
+        const orderInfo = "Thanh toán đơn hàng thuê";
         const redirectUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
         const ipnUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
         const amount = req.body.totalAmount? req.body.totalAmount : 0;
         const requestType = "captureWallet"
-        const extraData = ""; //pass empty value if your merchant does not have stores
-
+        const extraData = "";
         //before sign HMAC SHA256 with format
         const rawSignature = "accessKey="+accessKey+"&amount=" + amount+ "&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
         //signature
@@ -262,7 +272,6 @@ class orderController{
             res2.on('data', (body) => {
                 // gửi về client
                 res.send(JSON.parse(body).payUrl)
-                console.log(JSON.parse(body).payUrl);
 
             });
         })
@@ -279,15 +288,44 @@ class orderController{
         try {
             if(req.query.resultCode == 0){
                 await orderService.update(req.query.id,{isPayment:true,paymentMethod:'MOMO', pricePayed:req.query.amount})
-                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+                if(req.query.url.indexOf('?') !=='?'){
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
+                }
+                else{
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=true&id=${req.query.id}`)
+
+                }
             }
             else{
-                return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+                if(req.query.url.indexOf('?') !=='?'){
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
+                }
+                else{
+                    return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}/?success=false&id=${req.query.id}`)
+
+                }
             }
         } catch (error) {
             console.log(error);
         }
         
+    }
+
+    async searchOrder(req, res){
+        try {
+            const condition = {...req.body}
+            const {pageNumber=undefined} = req.query
+            const {pageSize=undefined} = req.query
+            if(!!condition){
+                const result = await orderService.find({...condition},pageNumber,pageSize)
+                res.json(result)
+            }
+            else{
+                res.json([])
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     

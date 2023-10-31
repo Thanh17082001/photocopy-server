@@ -6,6 +6,7 @@ const router = express.Router()
 router.post('/create',rentalController.create)
 router.get('/find',rentalController.getById) // ?id=
 router.post('/update',rentalController.update) //?id
+router.post('/search',rentalController.searchOrder)
 router.post('/create_payment_url', rentalController.vnpayPayment);
 router.get('/payment',rentalController.paymentReturn)
 router.post('/pay-momo', rentalController.paymetnWithMoMO)

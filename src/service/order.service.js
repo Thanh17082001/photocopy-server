@@ -9,7 +9,7 @@ class orderSerVice{
         const skip = !!pageNumber && !!pageSize ? (pageNumber - 1) * pageSize : {};
         return await orderModel
             .find(condition)
-            .populate('products.productId', ['name'])
+            .populate('products.productId')
             .populate('createBy',['fullName','phoneNumber'])
             .populate('customerId')
             .sort(sort)
@@ -26,7 +26,7 @@ class orderSerVice{
       if(mongoose.Types.ObjectId.isValid(id)){
         return await orderModel
         .findById(id)
-        .populate('products.productId', ['name'])
+        .populate('products.productId')
         .populate('createBy',['fullName','phoneNumber'])
         .populate('customerId')
       }

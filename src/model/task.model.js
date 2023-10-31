@@ -41,6 +41,7 @@ const taskSchema = new Schema({
     nameCustomer:String,
     phone:String,
     address:String,
+    email:String,
     status:{
         type:String,
         enum:['Hoàn thành', 'Đang tiến hành', 'Chưa bắt đầu', 'Đã báo cáo'],

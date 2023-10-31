@@ -49,12 +49,15 @@ class productController {
     //update
     async update(req, res) {
         try {
+            
             const { id } = !!req.query ? req.query : '';
             const accessory = await accessoryService.finById(id);
             const covertFits= accessory.fits.map(fit => ({product:fit.product._id}))
             accessory.fits=[]
             accessory.fits=[...covertFits]
             const oldAcc = {
+                idBrand:accessory.idBrand.toString() ,
+                idType: accessory.idType.toString(),
                 name: accessory.name,
                 priceSale: accessory.priceSale,
                 description: accessory.description,
@@ -64,6 +67,8 @@ class productController {
             const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : accessory.image;
             if (!!req.body) {
                 const newAcc = {
+                    idBrand:req.body.idBrand ,
+                    idType: req.body.idType,
                     name: req.body.name,
                     priceSale: req.body.priceSale,
                     description: req.body.description,
@@ -110,6 +115,30 @@ class productController {
             
         } catch (error) {
             console.log(error);
+        }
+    }
+    async filterProduct(req, res){
+        try {
+            const {type, field, pageNumber, pageSize}= req.query
+            if(field!='createdAt'){
+                const condition={
+                    [field]:type
+                }
+                console.log(condition);
+                const result = await accessoryService.find(condition, pageNumber, pageSize);
+                res.json(result);
+            }
+            else{
+                const sort={
+                    [field]:Number(type),
+                    //số lượng bán >0
+                }
+                const result = await accessoryService.find({}, pageNumber, pageSize, sort);
+                res.json(result);
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ error });
         }
     }
 }
