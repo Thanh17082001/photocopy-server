@@ -1,8 +1,9 @@
 import orderService from "../service/order.service";
-import deepEqual from "deep-equal";
+import mailer from '../utils/mailler'
 import moment from "moment/moment";
 import productService from "../service/product.service";
 import accessoryService from "../service/accessory.service";
+import codeService from "../service/code.service";
 class orderController{
     constructor() {
         this.vnpayPayment = this.vnpayPayment.bind(this);
@@ -325,6 +326,52 @@ class orderController{
             }
         } catch (error) {
             console.log(error);
+        }
+    }
+    async sendMail(req, res){
+        try {
+            const {email} = req.body
+            let numbers=''
+            for (let i = 0; i < 6; i++) {
+                let randomNumber = Math.floor(Math.random() * 10);
+                numbers+=randomNumber;
+            }
+            const result = await mailer.sendMail(email , numbers, 'Mã Xác Nhận đơn hàng')
+            if(!!result){
+                await codeService.create({
+                    emailUser:email,
+                    codeNumber:numbers,
+                    resetTokenExpires: Date.now() + 60000
+                })
+                res.json({status:true})
+            }
+            else {
+                res.json({mes:'Lỗi khi gửi email',status:false}) 
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    async confirm(req, res){
+        try {
+            const {code, email} = req.body
+            const codeConfirm = await codeService.findAllByEmail(email)
+            if(codeConfirm.length !== 0){
+                if(codeConfirm[0].codeNumber == code){
+                    await codeService.updateCodeIsValid(email, code)
+                    res.json({status:true})
+                }
+                else{
+                    res.json({status:false, mes:'Mã xác thực không chính xác'})
+                }
+    
+            }
+            else{
+                res.json({mes:'Mã xác thực hết hạn hoặc đã được sử dụng', status:false})
+            }
+        } catch (error) {
+            console.log(error);
+            
         }
     }
 

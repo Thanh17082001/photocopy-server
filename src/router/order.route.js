@@ -12,6 +12,9 @@ router.post('/search',orderController.searchOrder)
 router.get('/filter-date',orderController.filterByFullDate)
 router.post('/pay-momo', orderController.paymetnWithMoMO)
 router.get('/pay-momo-return', orderController.returnMomo)
+
+router.post('/sendMail',orderController.sendMail)
+router.post('/confirm',orderController.confirm)
 router.get('/',orderController.getAll)
 
 // Vui lòng tham khảo thêm tại code demo

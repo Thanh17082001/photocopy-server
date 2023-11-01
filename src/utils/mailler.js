@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv';
 dotenv.config();
-exports.sendMail = async (to, text, subject) => {
+exports.sendMail = async (to, text, subject, html) => {
     let transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
@@ -19,7 +19,8 @@ exports.sendMail = async (to, text, subject) => {
           from: process.env.MAIL_USERNAME,
           to: to,
           subject: subject,
-          text: text
+          text: text,
+          html:html
         };
 
       // Gửi email
