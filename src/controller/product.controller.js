@@ -43,21 +43,37 @@ class productController {
     async getProductById(req, res) {
         try {
             const { id } = !!req.query ? req.query : '';
+            
             const result = await productService.findProductById(id);
             res.json(result);
         } catch (error) {
-            console.log(error);
 
             res.status(500).json({ error });
         }
     }
 
+    async getProductByCondition(req, res) {
+        try {
+            const { condition={} } = req.body;
+            const { sort={} } = req.body;
+            const pageNumber = req.body.pageNumber ? req.body.pageNumber : {}
+            const pageSize = req.body.pageSize ? req.body.pageSize : {}
+            const result = await productService.findProduct({... condition }, pageNumber, pageSize, sort);
+            res.json(result);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error })
+        }
+    }
     async getProductByBrandId(req, res) {
         try {
             const { brandId } = req.query;
-            const result = await productService.findProduct({ brandId });
+            const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
+            const pageSize = req.query.pageSize ? req.query.pageSize : {}
+            const result = await productService.findProduct({ brandId }, pageNumber, pageSize);
             res.json(result);
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error })
         }
     }

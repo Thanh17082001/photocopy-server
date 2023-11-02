@@ -13,6 +13,7 @@ router.get('/filter',productController.filterProduct) //?type= & field=
 router.get('/get-id/', productController.getProductById) //?id=
 router.get('/product-detail/', productController.getProductDetail) //?id=
 router.get('/get-brand-id/', productController.getProductByBrandId) //?brandId=
+router.post('/condition', productController.getProductByCondition) //=
 router.get('/filter-date',productController.filterByFullDate)
 router.get('/', productController.getAllProduct)  //?pageNumber&pageSize
 

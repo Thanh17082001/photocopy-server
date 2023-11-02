@@ -21,7 +21,10 @@ class productService {
         }
     }
     async findProductById(id) {
-        return await productModel.findById(id);
+        return await productModel.findById(id)
+        .populate('brandId')
+        .populate('typeId')
+        .populate('categoryId');
     }
 
     async updateProduct(id, data) {
