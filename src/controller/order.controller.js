@@ -179,7 +179,7 @@ class orderController{
         if(vnp_Params['vnp_ResponseCode'] == '00') {
             const order = await orderService.findById(req.query.id)
             await orderService.update(req.query.id,{isPayment:true,paymentMethod:'VNPAY', pricePayed: order.totalAmount})
-            if(req.query.url.indexOf('?') !=='?'){
+            if(req.query.url.indexOf('?') !==-1){
                 return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
             }
             else{
@@ -187,7 +187,7 @@ class orderController{
             }    
         }
         else{
-            if(req.query.url.indexOf('?') !=='?'){
+            if(req.query.url.indexOf('?') !==-1){
                 return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
             }
             else{
@@ -287,9 +287,10 @@ class orderController{
 
     async returnMomo (req, res){
         try {
+            console.log(req.query.url);
             if(req.query.resultCode == 0){
                 await orderService.update(req.query.id,{isPayment:true,paymentMethod:'MOMO', pricePayed:req.query.amount})
-                if(req.query.url.indexOf('?') !=='?'){
+                if(req.query.url.indexOf('?') !==-1){
                     return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
                 }
                 else{
@@ -298,7 +299,7 @@ class orderController{
                 }
             }
             else{
-                if(req.query.url.indexOf('?') !=='?'){
+                if(req.query.url.indexOf('?') !==-1){
                     return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
                 }
                 else{

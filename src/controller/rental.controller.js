@@ -16,6 +16,7 @@ class rentalController{
                     if(req.body.payInFull || req.body.quantityMonth==1){
                         datePay=endDate
                     }
+                    
                     else{
                         datePay.setMonth(startDate.getMonth() + 1);
                     }  
@@ -209,7 +210,7 @@ class rentalController{
             console.log(vnp_Params['vnp_Amount']);
             if(rental.payInFull || rental.totalAmount <= vnp_Params['vnp_Amount']/100 + rental.pricePayed){
                 await rentalService.update(req.query.id,{isPayment:'Đã thanh toán',paymentMethod:'VNPAY', pricePayed:rental.totalAmount})
-                if(req.query.url.indexOf('?') !=='?'){
+                if(req.query.url.indexOf('?') !==-1){
                     return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
                 }
                 else{
@@ -222,7 +223,7 @@ class rentalController{
                 }
                 await rentalService.update(req.query.id,{isPayment:'Thanh toán theo tháng',paymentMethod:'VNPAY', datePay:rental.datePay, payInFull:false})
                 await rentalService.update2(req.query.id,vnp_Params['vnp_Amount']/100)
-                if(req.query.url.indexOf('?') !=='?'){
+                if(req.query.url.indexOf('?') !==-1){
                     return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
                 }
                 else{
@@ -232,7 +233,7 @@ class rentalController{
         }
         else{
             await rentalService.update(req.query.id,{isPayment:'Chưa thanh toán',paymentMethod:'VNPAY'})
-            if(req.query.url.indexOf('?') !=='?'){
+            if(req.query.url.indexOf('?') !==-1){
                 return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
             }
             else{
@@ -317,13 +318,12 @@ class rentalController{
     }
 
     async returnMomo (req, res){
-        console.log('aaaa');
         try {
             if(req.query.resultCode == 0){
                 const rental=await rentalService.findById(req.query.id)
                 if(rental.payInFull && rental.totalAmount == req.query.amount){
                     await rentalService.update(req.query.id,{isPayment:'Đã thanh toán',paymentMethod:'MOMO', pricePayed:rental.totalAmount})
-                    if(req.query.url.indexOf('?') !=='?'){
+                    if(req.query.url.indexOf('?') !==-1){
                         return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
                     }
                     else{
@@ -337,7 +337,7 @@ class rentalController{
                     }
                     await rentalService.update(req.query.id,{isPayment:'Thanh toán theo tháng',paymentMethod:'MOMO', datePay:rental.datePay, payInFull:false})
                     await rentalService.update2(req.query.id,req.query.amount)
-                    if(req.query.url.indexOf('?') !=='?'){
+                    if(req.query.url.indexOf('?') !==-1){
                         return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=true&id=${req.query.id}`)
                     }
                     else{
@@ -348,7 +348,7 @@ class rentalController{
             }
             else{
                 await rentalService.update(req.query.id,{isPayment:'Chưa thanh toán',paymentMethod:'MOMO'})
-                if(req.query.url.indexOf('?') !=='?'){
+                if(req.query.url.indexOf('?') !==-1){
                     return res.redirect(`http://localhost:3001/${req.query.url ? req.query.url :''}&success=false&id=${req.query.id}`)
                 }
                 else{
@@ -397,7 +397,6 @@ class rentalController{
             console.log(error);
         }
     }
-    
 }
 
 export default new rentalController()

@@ -10,7 +10,7 @@ class productController {
                     ...req.body,
                     image: image,
                 };
-                data.idBrand=!!req.body.idBrand ? req.body.idBrand : null
+                data.brandId=!!req.body.brandId ? req.body.brandId : null
                 await accessoryService.create(data);
                 res.json({ mes: 'Thêm phụ kiện thành công', status: true });
             } else {
@@ -56,8 +56,8 @@ class productController {
             accessory.fits=[]
             accessory.fits=[...covertFits]
             const oldAcc = {
-                idBrand:accessory.idBrand.toString() ,
-                idType: accessory.idType.toString(),
+                brandId:accessory.brandId?.toString() ,
+                typeId: accessory.typeId?.toString(),
                 name: accessory.name,
                 priceSale: accessory.priceSale,
                 description: accessory.description,
@@ -67,8 +67,8 @@ class productController {
             const image = !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : accessory.image;
             if (!!req.body) {
                 const newAcc = {
-                    idBrand:req.body.idBrand ,
-                    idType: req.body.idType,
+                    brandId:req.body.brandId ,
+                    typeId: req.body.typeId,
                     name: req.body.name,
                     priceSale: req.body.priceSale,
                     description: req.body.description,
@@ -141,6 +141,20 @@ class productController {
             res.status(500).json({ error });
         }
     }
+    async getProductByCondition(req, res) {
+        try {
+            const { condition={} } = req.body;
+            const { sort={} } = req.body;
+            const pageNumber = req.body.pageNumber ? req.body.pageNumber : {}
+            const pageSize = req.body.pageSize ? req.body.pageSize : {}
+            const result = await accessoryService.find({... condition }, pageNumber, pageSize, sort);
+            res.json(result);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error })
+        }
+    }
+    
 }
 
 

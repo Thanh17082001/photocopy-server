@@ -5,17 +5,17 @@ class accessoryService{
         return await accessoryModel.create(data)
     }
 
-    async find(conđition={},pageNumber={}, pageSize={}, sort={createdAt:-1}){
+    async find(condition={},pageNumber={}, pageSize={}, sort={createdAt:-1}){
         const skip = (pageNumber - 1) * pageSize;
-        return accessoryModel.find(conđition).sort(sort).limit(pageSize).skip(skip).lean()
+        return accessoryModel.find(condition).sort(sort).limit(pageSize).skip(skip).lean()
     }
 
     async  finById(id){
         return await accessoryModel
             .findById(id)
             .populate('fits.product')
-            .populate('idBrand')
-            .populate('idType')
+            .populate('brandId')
+            .populate('typeId')
             .lean()
     }
 

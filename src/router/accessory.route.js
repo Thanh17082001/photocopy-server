@@ -6,6 +6,7 @@ const route = express.Router()
 route.post('/create', upload('accessory').single('image'), accessoryController.create)
 route.post('/update',upload('accessory').single('image'),accessoryController.update) // ?id=
 route.get('/find',accessoryController.getById) // ?id=
+route.post('/condition', accessoryController.getProductByCondition) //=
 route.get('/filter-date', accessoryController.filterByFullDate)  // ?day month year field
 route.get('/filter',accessoryController.filterProduct) //?type= & field=
 route.get('/',accessoryController.getAllAccessory)//?pageNumber &pageSize

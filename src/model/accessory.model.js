@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const accessorySchema = new Schema({
-    idBrand:{
+    brandId:{
         type:Schema.Types.ObjectId,
         ref:'brand',
     },
-    idType:{
+    typeId:{
         type:Schema.Types.ObjectId,
         ref:'type-accessory',
     },
