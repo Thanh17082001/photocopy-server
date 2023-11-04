@@ -194,7 +194,7 @@ exports.resetPass=async (req, res)=>{
 // Chinh sua thong tin
 exports.updateUser = async (req, res) =>{
     try {
-        const userLogin = req.session.auth 
+        const userLogin = await userService.findById(req.body._id)
         if(!!userLogin){
             const auth = {
                 fullName: userLogin.fullName,
@@ -202,7 +202,7 @@ exports.updateUser = async (req, res) =>{
                 avatar: userLogin.avatar,
                 phoneNumber: userLogin.phoneNumber
             }
-            const image= !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : userLogin.image;
+            const image= !!req.file ? req.file.path.split('public')[1].replace(/\\/g, '/') : userLogin.avatar;
             const userChange ={
                 fullName: req.body.fullName,
                 email: req.body.email,
@@ -220,8 +220,9 @@ exports.updateUser = async (req, res) =>{
                     res.json({mes:'Số điện thoại đã được sử dụng', status: false})
                 }
                 else{
-                    await userService.updateUserById(userLogin._id, userChange)
-                    res.json({mes:'Thay đổi thông tin thành công', status:true})
+                    const result =await userService.updateUserById(userLogin._id, userChange)
+                    req.session.auth.user=result
+                    res.json({mes:'Thay đổi thông tin thành công', status:true, result})
                 }
             }
             else{
@@ -232,6 +233,7 @@ exports.updateUser = async (req, res) =>{
             res.json({mes:'Bạn chưa đăng nhập'})
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json({error})
     }
 }
@@ -239,18 +241,19 @@ exports.updateUser = async (req, res) =>{
 // Doi mat khau
 exports.changePassword = async (req, res) => {
     try {
-        const auth = req.session.auth
+        const auth = await userService.findById(req.body._id)
         if(!!auth){
             const user = await userService.findByEmail(auth.email)
-            const {password, newPassword} = req.body
+            const {password, newPass} = req.body
             const verify = await argon2.verify(user.password, password)
+            console.log(verify);
             if(verify){
-                const password = await argon2.hash(newPassword)
-                await userService.updateUserById(user._id,{password})
+                const password2 = await argon2.hash(newPass)
+                const result = await userService.updateUserById(user._id,{password:password2})
                 res.json({mes:'Đổi mật khẩu thành công', status:true})
             }
             else{
-                res.json({mes:'Mật khẩu cũ không chính xác', status: false})
+                res.json({mes:'Mật khẩu cũ không chính xác', status: false, result})
             }
         }
         else{

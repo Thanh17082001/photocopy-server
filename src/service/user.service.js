@@ -8,6 +8,9 @@ class UserService{
     async findByEmail(email){
         return await userModel.findOne({email, disable:false}).lean()
     }
+    async findById(id){
+        return await userModel.findOne({_id:id, disable:false}).lean()
+    }
 
     async findByPhoneNumber(phoneNumber){
         return await userModel.findOne({phoneNumber, disable:false}).lean()
