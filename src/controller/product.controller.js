@@ -2,7 +2,7 @@ import productService from '../service/product.service';
 import deepEqual from 'deep-equal';
 import puppeteer from 'puppeteer';
 import XLSX from 'xlsx'
-const fs = require("fs");
+const fs = require("fs")
 class productController {
     async create(req, res) {
         try {
@@ -153,6 +153,7 @@ class productController {
                 const condition={
                     [field]:type
                 }
+                console.log(condition);
                 const result = await productService.findProduct(condition, pageNumber, pageSize);
                 res.json(result);
             }

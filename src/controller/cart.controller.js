@@ -1,6 +1,4 @@
 import cartService from "../service/cart.service";
-import deepEqual from "deep-equal";
-
 class cartController{
     async create(req, res){
         try {
@@ -21,13 +19,13 @@ class cartController{
                             products.unshift(req.body.product)
 
                         }
-                    await cartService.update(exitsUserId._id, {products:products})
-                    res.json({status:true})
+                    const result=await cartService.update(exitsUserId._id, {products:products})
+                    res.json({status:true, result})
                     return;
                 }
                 else{
-                    await cartService.create(data)
-                    res.send({mes:'Thêm thành công', status:true});
+                    const result=await cartService.create(data)
+                    res.send({mes:'Thêm thành công', status:true, result});
                 }
             }
             else{
