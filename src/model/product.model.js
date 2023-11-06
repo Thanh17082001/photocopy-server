@@ -30,7 +30,7 @@ const productSchema = new Schema({
         default:0
     },
     priceSale:{
-        type: Number
+        type: Number,
     },
     priceImport:{
         type: Number,

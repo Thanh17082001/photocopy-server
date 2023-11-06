@@ -20,6 +20,7 @@ import taskRoute from './task.route'
 import warrantyRoute from './warranty.route'
 import siteRoute from './site.route'
 import cartRoute from './cart.route'
+import commentRoute from './comment.route'
 
 const routers = (app) => {
     app.use('/user', userRoute);
@@ -44,6 +45,7 @@ const routers = (app) => {
     app.use('/warranty', warrantyRoute)
     app.use('/site', siteRoute)
     app.use('/cart', cartRoute)
+    app.use('/comment', commentRoute)
     app.use('/', (req, res) => {
         res.send('Hom page');
     })

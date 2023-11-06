@@ -50,11 +50,11 @@ class siteController{
             const resultOrder=covertArrayYear(order)
             const resultRental=covertArrayYear(rental)
             const resultWarranty=covertArrayYear(warranty)
-            const resulttask=covertArrayYear(task)
+            const resulTtask=covertArrayYear(task)
             const a = calculateTotalRevenueYear(resultOrder, resultRental)
-            const b = calculateTotalRevenueYear(resulttask, resultWarranty)
+            const b = calculateTotalRevenueYear(resulTtask, resultWarranty)
             const result = calculateTotalRevenueYear(a, b)
-            res.json(result)
+            res.json({result, resultOrder, resultRental, resultWarranty, resulTtask})
         } catch (error) {
             res.status(500).json(error)
         }
@@ -79,7 +79,7 @@ class siteController{
             const a =calculateTotalRevenueMonth(resultOrder, resultRental)
             const b =calculateTotalRevenueMonth(resultWarranty, resultTask)
             const result =calculateTotalRevenueMonth(a, b)
-            res.json(result)
+            res.json({result, resultOrder, resultRental, resultWarranty, resultTask})
         } catch (error) {
             res.status(500).json(error)
         }

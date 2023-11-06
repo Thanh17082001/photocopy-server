@@ -2,23 +2,25 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const commentSchema = new Schema({
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:'user'
-    },
+    email:String,
+    name:String,
     productId:{
         type:Schema.Types.ObjectId,
-        ref:'product'
+        refPath:'typeProduct',
     },
+    typeProduct:String,
     content:{
         type:String
     },
     rate:{
         type:Number,
-        emum:[0,1,2,3,4,5],
-        default:0
+        emum:[1,2,3,4,5],
     },
     image:String,
+    approve:{
+        type:Boolean,
+        default:false
+    },
     feedback:[
         {
             userFeedbackId:{

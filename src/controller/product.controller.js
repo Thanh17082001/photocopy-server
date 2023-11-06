@@ -1,4 +1,5 @@
 import productService from '../service/product.service';
+import accessoryService from '../service/accessory.service'
 import deepEqual from 'deep-equal';
 import puppeteer from 'puppeteer';
 import XLSX from 'xlsx'
@@ -142,7 +143,7 @@ class productController {
                 res.json({mes:'Không lấy được dữ liệu', status:false})
             }
         } catch (error) {
-            res.status(500).json({ error });
+            res.status(500).json({ error })
         }
     }
 
@@ -167,32 +168,32 @@ class productController {
             }
         } catch (error) {
             console.log(error)
-            res.status(500).json({ error });
+            res.status(500).json({ error })
         }
     }
 
     async search(req, res){
         try {
-            console.log(req.body);
             const data= req.body.searchValue
             const pageNumber = req.query.pageNumber ? req.query.pageNumber : {}
             const pageSize = req.query.pageSize ? req.query.pageSize : {}
             const numberSearch= Number(data) ? [
-                {inputQuantity:{ $gte: Number(data) }}, 
-                {soldQuantity:{ $gte: Number(data) }}, 
-                {priceSale:{ $gte: Number(data) }}, 
-                { priceImport:{ $gte: Number(data) }},
-                {priceRental:{ $gte: Number(data) }},
+                {priceSale:{ $gte: Number(data), $lte: Number(data)+2000000 }},
             ] : []
             const searchValue= [
-                { name: { $regex: '.*' + data + '.*' } },
-                { description: { $regex: '.*' + data + '.*' } },
-                {type:{ $regex: '.*' + data + '.*' } },
+                { name: { $regex:  data ,  $options: 'i'  } },
+                { description: { $regex:  data ,  $options: 'i'   } },
                 ...numberSearch
               ]
-            const result=await productService.findProduct({$or: searchValue}, pageNumber, pageSize)
+              console.log(searchValue);
+            const result1=await productService.findProduct({$or: searchValue}, pageNumber, pageSize)
+            const result2=await accessoryService.find({$or: searchValue}, pageNumber, pageSize)
+            result1.forEach(item=> item.typeProduct='product')
+            result2.forEach(item=> item.typeProduct='accessory')
+              const result =[...result1, ...result2]
             res.json(result)
         } catch (error) {
+            console.log(error);
             res.status(500).json({ error:error.message });
         }
     }
