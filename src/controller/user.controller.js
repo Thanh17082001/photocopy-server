@@ -267,8 +267,12 @@ exports.changePassword = async (req, res) => {
 
 exports.getAll=async (req, res)=>{
     try {
-        const {pageNumber=1, pageSize=8}= req.query
-        const result = await userService.findAllAndPagination({isAdmin:false}, pageNumber, pageSize)
+        const {pageNumber={}, pageSize={}}= req.query
+        const condition = {
+            isAdmin:false,
+            ...req.body
+        }
+        const result = await userService.findAllAndPagination(condition, pageNumber, pageSize)
         res.json(result)
     } catch (error) {
         console.log(error);

@@ -46,5 +46,5 @@ route.get('/info-user',(req, res)=>{
     }
 })
 route.get('/filter-date',UserController.filterByFullDate)
-route.get('/', UserController.getAll)
+route.post('/', UserController.getAll)
 export default route

@@ -82,7 +82,7 @@ class rentalService{
             {
               $group: {
                 _id: { $month: '$createdAt' },
-                totalRevenue: { $sum: '$pricePayed' }
+                totalRevenue: { $sum: '$totalAmount' }
               }
             },
             {
@@ -108,7 +108,7 @@ class rentalService{
               {
                 $group: {
                   _id: { $dayOfMonth: '$createdAt' },
-                  totalRevenue: { $sum: '$pricePayed' }
+                  totalRevenue: { $sum: '$totalAmount' }
                 }
               },
               {
@@ -127,51 +127,63 @@ class rentalService{
 
     async expenseYear(startDate, endDate){
       const result = await rentalModel.aggregate([
-          {
-            $match: {
-              createdAt: { $gte: startDate, $lte: endDate }
-            }
-          },
-          {
-            $group: {
-              _id: { $month: '$createdAt' },
-              totalRevenue: { $sum: '$totalAmount' }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              month: '$_id',
-              totalRevenue: 1
-            }
-          },
-          {
-            $sort: { month: 1 }
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            status:{$ne: 'Hủy đơn'}
           }
+        },
+        {
+          $unwind: "$products"
+        },
+        {
+          $group: {
+            _id: { $month: '$createdAt' },
+            totalRevenue: {
+              $sum: { $multiply: [0, "$products.quantity"] }
+            }
+          }
+        },
+        {
+          $project: {
+              day: '$_id', // Tạo trường label từ _id
+              totalRevenue: 1,
+              _id: 0 // Loại bỏ trường _id
+          }
+      },
+        {
+          $sort: { month: 1 }
+        }
         ]);
         console.log(result);
       return result
   }
   async expenseMonth(firstDayOfMonth, lastDayOfMonth){
       const result = await rentalModel.aggregate([
-          {
-              $match: {
-                createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
-              }
-            },
-            {
-              $group: {
-                _id: { $dayOfMonth: '$createdAt' },
-                totalRevenue: { $sum: '$totalAmount' }
-              }
-            },
-            {
-              $project: {
-                day: '$_id',
-                totalRevenue: 1,
-                _id: 0
-              }
-            },
+        {
+          $match: {
+            createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth },
+            status:{$ne: 'Hủy đơn'}
+          }
+        },
+        {
+          $unwind: "$products"
+        },
+        {
+          $group: {
+            _id: { $dayOfMonth: '$createdAt' },
+            totalRevenue: {
+              $sum: { $multiply: [0, "$products.quantity"] }
+            }
+          }
+        },
+        {
+          $project: {
+              day: '$_id', // Tạo trường label từ _id
+              totalRevenue: 1,
+              _id: 0 // Loại bỏ trường _id
+          }
+      },
             {
               $sort: { day: 1 }
             }

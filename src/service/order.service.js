@@ -73,7 +73,7 @@ class orderSerVice{
             {
               $group: {
                 _id: { $month: '$createdAt' },
-                totalRevenue: { $sum: '$pricePayed' }
+                totalRevenue: { $sum: '$totalAmount' }
               }
             },
             {
@@ -99,7 +99,7 @@ class orderSerVice{
               {
                 $group: {
                   _id: { $dayOfMonth: '$createdAt' },
-                  totalRevenue: { $sum: '$pricePayed' }
+                  totalRevenue: { $sum: '$totalAmount' }
                 }
               },
               {
@@ -119,53 +119,64 @@ class orderSerVice{
       const result = await orderModel.aggregate([
           {
             $match: {
-              createdAt: { $gte: startDate, $lte: endDate }
+              createdAt: { $gte: startDate, $lte: endDate },
+              status:{$ne: 'Hủy đơn'}
             }
+          },
+          {
+            $unwind: "$products"
           },
           {
             $group: {
               _id: { $month: '$createdAt' },
-              totalRevenue: { $sum: '$totalAmount' }
+              totalRevenue: {
+                $sum: { $multiply: ["$products.priceImport", "$products.quantity"] }
+              }
             }
           },
           {
             $project: {
-              _id: 0,
-              month: '$_id',
-              totalRevenue: 1
+                month: '$_id', // Tạo trường label từ _id
+                totalRevenue: 1,
+                _id: 0 // Loại bỏ trường _id
             }
-          },
+        },
           {
             $sort: { month: 1 }
           }
         ]);
-        console.log(result);
       return result
   }
   async expenseMonth(firstDayOfMonth, lastDayOfMonth){
     const result = await orderModel.aggregate([
-        {
-            $match: {
-              createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
-            }
-          },
-          {
-            $group: {
-              _id: { $dayOfMonth: '$createdAt' },
-              totalRevenue: { $sum: '$totalAmount' }
-            }
-          },
-          {
-            $project: {
-              day: '$_id',
-              totalRevenue: 1,
-              _id: 0
-            }
-          },
-          {
-            $sort: { day: 1 }
+      {
+        $match: {
+          createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth },
+          status:{$ne: 'Hủy đơn'}
+        }
+      },
+      {
+        $unwind: "$products"
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: '$createdAt' },
+          totalRevenue: {
+            $sum: { $multiply: ["$products.priceImport", "$products.quantity"] }
           }
-      ]);
+        }
+      },
+      {
+        $project: {
+            day: '$_id', // Tạo trường label từ _id
+            totalRevenue: 1,
+            _id: 0 // Loại bỏ trường _id
+        }
+    },
+    {
+      $sort: { day: 1 }
+    }
+    ]);
     return result
 }
 }

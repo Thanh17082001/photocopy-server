@@ -62,13 +62,15 @@ class warrantyService{
         const result = await warrantyModel.aggregate([
             {
               $match: {
-                createdAt: { $gte: startDate, $lte: endDate }
+                createdAt: { $gte: startDate, $lte: endDate },
+            status:{$ne: 'Hủy đơn'}
+
               }
             },
             {
               $group: {
                 _id: { $month: '$createdAt' },
-                totalRevenue: { $sum: '$pricePayed' }
+                totalRevenue: { $sum: '$totalAmount' }
               }
             },
             {
@@ -88,13 +90,14 @@ class warrantyService{
         const result = await warrantyModel.aggregate([
             {
                 $match: {
-                  createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+                  createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth },
+            status:{$ne: 'Hủy đơn'}
                 }
               },
               {
                 $group: {
                   _id: { $dayOfMonth: '$createdAt' },
-                  totalRevenue: { $sum: '$pricePayed' }
+                  totalRevenue: { $sum: '$totalAmount' }
                 }
               },
               {
@@ -113,53 +116,65 @@ class warrantyService{
 
     async expenseYear(startDate, endDate){
       const result = await warrantyModel.aggregate([
-          {
-            $match: {
-              createdAt: { $gte: startDate, $lte: endDate }
-            }
-          },
-          {
-            $group: {
-              _id: { $month: '$createdAt' },
-              totalRevenue: { $sum: '$totalAmount' }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              month: '$_id',
-              totalRevenue: 1
-            }
-          },
-          {
-            $sort: { month: 1 }
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            status:{$ne: 'Hủy đơn'}
           }
+        },
+        {
+          $unwind: "$products"
+        },
+        {
+          $group: {
+            _id: { $month: '$createdAt' },
+            totalRevenue: {
+              $sum: { $multiply: ["$products.priceImport", "$products.quantity"] }
+            }
+          }
+        },
+        {
+          $project: {
+              month: '$_id', // Tạo trường label từ _id
+              totalRevenue: 1,
+              _id: 0 // Loại bỏ trường _id
+          }
+      },
+        {
+          $sort: { month: 1 }
+        }
         ]);
       return result
   }
   async expenseMonth(firstDayOfMonth, lastDayOfMonth){
       const result = await warrantyModel.aggregate([
-          {
-              $match: {
-                createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
-              }
-            },
-            {
-              $group: {
-                _id: { $dayOfMonth: '$createdAt' },
-                totalRevenue: { $sum: '$totalAmount' }
-              }
-            },
-            {
-              $project: {
-                day: '$_id',
-                totalRevenue: 1,
-                _id: 0
-              }
-            },
-            {
-              $sort: { day: 1 }
+        {
+          $match: {
+            createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth },
+            status:{$ne: 'Hủy đơn'}
+          }
+        },
+        {
+          $unwind: "$products"
+        },
+        {
+          $group: {
+            _id: { $dayOfMonth: '$createdAt' },
+            totalRevenue: {
+              $sum: { $multiply: ["$products.priceImport", "$products.quantity"] }
             }
+          }
+        },
+        {
+          $project: {
+              day: '$_id', // Tạo trường label từ _id
+              totalRevenue: 1,
+              _id: 0 // Loại bỏ trường _id
+          }
+      },
+      {
+        $sort: { day: 1 }
+      }
         ]);
       return result
   }

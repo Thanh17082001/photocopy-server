@@ -24,6 +24,7 @@ const taskSchema = new Schema({
             },
             nameProduct:String,
             priceSale:Number,
+            priceImport:Number,
             quantity:Number,
         }
     ],

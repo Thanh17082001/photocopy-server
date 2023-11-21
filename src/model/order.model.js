@@ -24,6 +24,7 @@ const orderSchema = new Schema({
             },
             nameProduct:String,
             priceSale:Number,
+            priceImport:Number,
             warrantyTime:{
                 type:Number,
                 default:null

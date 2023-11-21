@@ -23,6 +23,7 @@ const rentalSchema = new Schema({
             },
             nameProduct:String,
             priceRental:Number,
+            priceImport:Number,
             quantity:Number,
         }
     ],
