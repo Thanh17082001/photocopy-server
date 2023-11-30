@@ -185,11 +185,13 @@ class productController {
                 { description: { $regex:  data ,  $options: 'i'   } },
                 ...numberSearch
               ]
-              console.log(searchValue);
             const result1=await productService.findProduct({$or: searchValue}, pageNumber, pageSize)
             const result2=await accessoryService.find({$or: searchValue}, pageNumber, pageSize)
             result1.forEach(item=> item.typeProduct='product')
-            result2.forEach(item=> item.typeProduct='accessory')
+            result2.forEach(item=> {
+                item.typeProduct='accessory'
+                item.categoryId=''
+            })
               const result =[...result1, ...result2]
             res.json(result)
         } catch (error) {

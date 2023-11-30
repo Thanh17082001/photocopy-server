@@ -124,7 +124,6 @@ class productController {
                 const condition={
                     [field]:type
                 }
-                console.log(condition);
                 const result = await accessoryService.find(condition, pageNumber, pageSize);
                 res.json(result);
             }
