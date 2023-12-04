@@ -11,7 +11,7 @@ class cartController{
                 }
                 if(!!exitsUserId){
                     let products= exitsUserId.products
-                    const index=exitsUserId.products.findIndex(product => product.id == req.body.product.id)
+                    const index=exitsUserId.products.findIndex(product => product.id.toString() == req.body.product.id)
                         if(index!==-1){
                             products[index].quantityCart+=req.body.product.quantityCart
                         }

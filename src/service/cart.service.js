@@ -14,7 +14,7 @@ class cartService{
         return await cartModel.findById(id)
     }
     async checkUserIdExist(userId){
-        return cartModel.findOne({userId})
+        return cartModel.findOne({userId}).lean()
 
     }
     async update(id, data){
