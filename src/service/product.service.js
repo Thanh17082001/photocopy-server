@@ -48,7 +48,7 @@ class productService {
                     $set: { priceImport: data.priceImport },
                     dateEntyReceipt:data.dateEntyReceipt
                 },
-                { returnDocument: 'after', upsert: true },
+                { returnDocument: 'after' },
             )
             .lean();
     }
@@ -63,7 +63,7 @@ class productService {
                         soldQuantity:-data.quantity
                      },
                 },
-                { returnDocument: 'after', upsert: true },
+                { returnDocument: 'after' },
             )
             .lean();
     }
@@ -117,7 +117,7 @@ class productService {
                     soldQuantity: data.quantity
                 }
             },
-            {returnDocument:'after',upsert:true}
+            {returnDocument:'after'}
         )
     }
     

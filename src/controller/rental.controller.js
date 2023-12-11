@@ -1,5 +1,6 @@
 import rentalService from "../service/rental.service";
 import productService from "../service/product.service";
+import accessoryService from "../service/accessory.service";
 import moment from "moment/moment";
 class rentalController{
     constructor() {
@@ -97,6 +98,10 @@ class rentalController{
                         return res.json({mes:'Không thể hủy đơn',status:false})
                     }
                     else{
+                        rental.products.forEach(async (product)=>{
+                                await productService.updateAfterCancelOrder(product.productId._id,{quantity:product.quantity})
+                            
+                    })
                         const result = await rentalService.update(id, {status:data.status})
                         return res.json({mes:'Cập nhật thành công', status:true, data:result})
                     }

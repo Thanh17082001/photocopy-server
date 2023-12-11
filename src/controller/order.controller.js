@@ -85,8 +85,12 @@ class orderController{
                         }
                         else{
                             rental.products.forEach(async (product)=>{
-                                console.log(product);
-                                 await productService.updateAfterCancelOrder(product.productId._id,{quantity:product.quantity})
+                                    if(product.typeProduct=='product'){
+                                        await productService.updateAfterCancelOrder(product.productId._id,{quantity:product.quantity})
+                                    }
+                                    else{
+                                        await accessoryService.updateAfterCancelOrder(product.productId._id,{quantity:product.quantity})
+                                    }
                             })
                             const result = await orderService.update(id, {status:data.status})
                             return res.json({mes:'Cập nhật thành công', status:true, data:result})

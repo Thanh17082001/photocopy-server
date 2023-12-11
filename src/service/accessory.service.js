@@ -61,6 +61,23 @@ class accessoryService{
             )
             .lean();
     }
+
+    async updateAfterCancelOrder(id, data) {
+        return accessoryModel
+            .findByIdAndUpdate(
+                id,
+                {
+                    $inc: { 
+                        inputQuantity: data.quantity,
+                        soldQuantity:-data.quantity
+                     },
+                },
+                { returnDocument: 'after' },
+            )
+            .lean();
+    }
+
+
     async updateAfterOrder(id,data){
        return await accessoryModel.findByIdAndUpdate(
             id,
