@@ -53,6 +53,21 @@ class productService {
             .lean();
     }
 
+    async updateAfterCancelOrder(id, data) {
+        return productModel
+            .findByIdAndUpdate(
+                id,
+                {
+                    $inc: { 
+                        inputQuantity: data.quantity,
+                        soldQuantity:-data.quantity
+                     },
+                },
+                { returnDocument: 'after', upsert: true },
+            )
+            .lean();
+    }
+
     async deleteProduct(id) {
         return await productModel.findByIdAndDelete(id);
     }
@@ -105,6 +120,7 @@ class productService {
             {returnDocument:'after',upsert:true}
         )
     }
+    
     async updateAfterRental(id,data){
         return await productModel.findByIdAndUpdate(
             id,
