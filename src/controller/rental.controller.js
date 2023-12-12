@@ -264,7 +264,7 @@ class rentalController{
         const redirectUrl = `http://localhost:3000/rental/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
         const ipnUrl = `http://localhost:3000/rental/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
         const amount = req.body.totalAmount? req.body.totalAmount : 0;
-        const requestType = "captureWallet"
+        const requestType = "payWithMethod"
         const extraData = ""; //pass empty value if your merchant does not have stores
 
         //before sign HMAC SHA256 with format

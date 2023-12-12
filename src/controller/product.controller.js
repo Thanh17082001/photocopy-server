@@ -154,7 +154,6 @@ class productController {
                 const condition={
                     [field]:type
                 }
-                console.log(condition);
                 const result = await productService.findProduct(condition, pageNumber, pageSize);
                 res.json(result);
             }

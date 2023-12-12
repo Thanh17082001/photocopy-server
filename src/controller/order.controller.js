@@ -230,14 +230,16 @@ class orderController{
         const partnerCode = "MOMO";
         const accessKey = "F8BBA842ECF85";
         const secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-        const requestId = req.body.orderId +new Date().getTime();
+        const requestId = req.body.orderId + new Date().getTime();
         const orderId = requestId;
         const orderInfo = "Thanh toán đơn hàng thuê";
         const redirectUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
         const ipnUrl = `http://localhost:3000/order/pay-momo-return/?url=${url}&id=${req.body.orderId}`;
         const amount = req.body.totalAmount? req.body.totalAmount : 0;
-        const requestType = "captureWallet"
+        const requestType = "payWithMethod"
         const extraData = "";
+        var orderGroupId ='';
+        var autoCapture =true;
         //before sign HMAC SHA256 with format
         const rawSignature = "accessKey="+accessKey+"&amount=" + amount+ "&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType
         //signature
@@ -256,8 +258,10 @@ class orderController{
             orderInfo : orderInfo,
             redirectUrl : redirectUrl,
             ipnUrl : ipnUrl,
+            autoCapture: autoCapture,
             extraData : extraData,
             requestType : requestType,
+            orderGroupId: orderGroupId,
             signature : signature,
             lang: 'en',
             url:url
@@ -295,7 +299,6 @@ class orderController{
 
     async returnMomo (req, res){
         try {
-            console.log(req.query.url);
             if(req.query.resultCode == 0){
                 await orderService.update(req.query.id,{isPayment:true,paymentMethod:'MOMO', pricePayed:req.query.amount})
                 if(req.query.url.indexOf('?') !==-1){
