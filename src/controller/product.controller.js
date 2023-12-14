@@ -181,7 +181,7 @@ class productController {
             ] : []
             const searchValue= [
                 { name: { $regex:  data ,  $options: 'i'  } },
-                { description: { $regex:  data ,  $options: 'i'   } },
+                // { description: { $regex:  data ,  $options: 'i'   } },
                 ...numberSearch
               ]
             const result1=await productService.findProduct({$or: searchValue}, pageNumber, pageSize)
